@@ -166,7 +166,9 @@ bool MBDistortionAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MBDistortionAudioProcessor::createEditor()
 {
-    return new MBDistortionAudioProcessorEditor (*this);
+    //return new MBDistortionAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
+
 }
 
 //==============================================================================
@@ -175,12 +177,36 @@ void MBDistortionAudioProcessor::getStateInformation (juce::MemoryBlock& destDat
     // You should use this method to store your parameters in the memory block.
     // You could do that either as raw data, or use the XML or ValueTree classes
     // as intermediaries to make it easy to save and load complex data.
+    juce::MemoryOutputStream mos(destData, true);
+    apvts.state.writeToStream(mos);
 }
 
 void MBDistortionAudioProcessor::setStateInformation (const void* data, int sizeInBytes)
 {
+    auto tree = juce::ValueTree::readFromData(data, sizeInBytes);
+    if (tree.isValid())
+    {
+        apvts.replaceState(tree);
+    }
     // You should use this method to restore your parameters from this memory block,
     // whose contents will have been created by the getStateInformation() call.
+}
+
+
+
+juce::AudioProcessorValueTreeState::ParameterLayout MBDistortionAudioProcessor::createParameterLayout()
+{
+    APVTS::ParameterLayout layout;
+    using namespace juce;
+    auto driveRange = NormalisableRange<float>(0, 100, 1, 1);
+    auto gainRange = NormalisableRange<float>(-24, 24, 0.5, 1);
+    layout.add(std::make_unique<AudioParameterFloat>("Input Gain", "Input Gain", gainRange, 0));
+    layout.add(std::make_unique<AudioParameterFloat>("Low Drive", "Low Drive", driveRange, 0));
+    layout.add(std::make_unique<AudioParameterFloat>("Mid-Low Drive", "Mid-Low Drive", driveRange, 0));
+    layout.add(std::make_unique<AudioParameterFloat>("Mid-High Drive", "Mid-High Drive", driveRange, 0));
+    layout.add(std::make_unique<AudioParameterFloat>("High Drive", "High Drive", driveRange, 0));
+    layout.add(std::make_unique<AudioParameterFloat>("Output Gain", "Output Gain", gainRange, 0));
+    return layout;
 }
 
 //==============================================================================
