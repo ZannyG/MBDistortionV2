@@ -216,24 +216,34 @@ void MBDistortionAudioProcessor::setStateInformation(const void* data, int sizeI
 
 void MBDistortionAudioProcessor::updateDistortionSettings(juce::AudioProcessorValueTreeState& apvts)
 {
-	distortion.inputGainInDecibels = apvts.getRawParameterValue("Input Gain")->load();
-	distortion.outputGainInDecibels = apvts.getRawParameterValue("Output Gain")->load();
-	distortion.drive = apvts.getRawParameterValue("Drive")->load();
+	using namespace Params;
+	const auto& params = GetParams();
+
+	auto floatHelper = [&apvts = this->apvts, &params](auto& param, const auto& paramName)
+	{
+		param = apvts.getRawParameterValue(params.at(paramName))->load();
+
+	};
+
+	floatHelper(distortion.inputGainInDecibels, Names::InputGain_Low_Band);
+	floatHelper(distortion.drive, Names::Distortion_Low_Band);
+	floatHelper(distortion.outputGainInDecibels, Names::OutputGain_Low_Band);
 }
 
 juce::AudioProcessorValueTreeState::ParameterLayout MBDistortionAudioProcessor::createParameterLayout()
 {
 	APVTS::ParameterLayout layout;
+
 	using namespace juce;
-	auto driveRange = NormalisableRange<float>(1, 30, 1, 1);
+	using namespace Params;
+	const auto& params = GetParams();
+
+	auto driveRange = NormalisableRange<float>(1, 100, 1, 1);
 	auto gainRange = NormalisableRange<float>(-24, 24, 0.5, 1);
-	layout.add(std::make_unique<AudioParameterFloat>("Input Gain", "Input Gain", gainRange, 0));
-	layout.add(std::make_unique<AudioParameterFloat>("Drive", "Drive", driveRange, 0));
-	layout.add(std::make_unique<AudioParameterFloat>("Low Drive", "Low Drive", driveRange, 0));
-	layout.add(std::make_unique<AudioParameterFloat>("Mid-Low Drive", "Mid-Low Drive", driveRange, 0));
-	layout.add(std::make_unique<AudioParameterFloat>("Mid-High Drive", "Mid-High Drive", driveRange, 0));
-	layout.add(std::make_unique<AudioParameterFloat>("High Drive", "High Drive", driveRange, 0));
-	layout.add(std::make_unique<AudioParameterFloat>("Output Gain", "Output Gain", gainRange, 0));
+
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::InputGain_Low_Band), params.at(Names::InputGain_Low_Band), gainRange, 0));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Distortion_Low_Band), params.at(Names::Distortion_Low_Band), driveRange, 0));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::OutputGain_Low_Band), params.at(Names::OutputGain_Low_Band), gainRange, 0));
 	layout.add(std::make_unique < AudioParameterBool>("Bypassed", "Bypassed", false));
 	return layout;
 }
