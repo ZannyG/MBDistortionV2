@@ -4,6 +4,8 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="sRPfwS" name="MBDistortion">
     <GROUP id="{D24DF6CA-1B73-EB01-B5DC-51445BA1F4DE}" name="Source">
+      <FILE id="ysClgm" name="Distortion.cpp" compile="1" resource="0" file="Source/Distortion.cpp"/>
+      <FILE id="Ncg0xA" name="Distortion.h" compile="0" resource="0" file="Source/Distortion.h"/>
       <FILE id="EKXMKZ" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="WqBLXH" name="PluginProcessor.h" compile="0" resource="0"
