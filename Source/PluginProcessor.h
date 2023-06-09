@@ -103,7 +103,7 @@ struct DistortionBand
 		float clipping{ 300.f };
 		waveshaper.functionToUse = [drive, clipping](float x)
 		{
-			return juce::jlimit(float(-clipping), float(clipping), x * (drive*2));
+			return juce::jlimit(float(-clipping), float(clipping), x * (drive * 2));
 		};
 	}
 public:
@@ -159,10 +159,16 @@ public:
 	static APVTS::ParameterLayout createParameterLayout();
 	APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 	juce::AudioParameterBool* bypassed{ nullptr };
-private:
 
-	//Distortion* p_distortion = new Distortion;
+private:
 	DistortionBand distortion;
+
+	using Filter = juce::dsp::LinkwitzRileyFilter<float>;
+	Filter LP, HP;
+
+	juce::AudioParameterFloat* lowCrossover { nullptr };
+
+	std::array<juce::AudioBuffer<float>, 2> filterBuffers;
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessor);
 	void updateDistortionSettings(juce::AudioProcessorValueTreeState& apvts);
