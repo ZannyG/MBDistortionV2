@@ -15,29 +15,23 @@ namespace Params
 {
 	enum Names
 	{
-		Low_MidLow_Freq,
-		MidLow_MidHigh_Freq,
-		MidHigh_High_Freq,
+		Low_Mid_Freq,
+		Mid_High_Freq,
 
 		InputGain_Low_Band,
 		Distortion_Low_Band,
 		OutputGain_Low_Band,
 
-		InputGain_MidLow_Band,
-		Distortion_MidLow_Band,
-		OutputGain_MidLow_Band,
-
-		InputGain_MidHigh_Band,
-		Distortion_MidHigh_Band,
-		OutputGain_MidHigh_Band,
+		InputGain_Mid_Band,
+		Distortion_Mid_Band,
+		OutputGain_Mid_Band,
 
 		InputGain_High_Band,
 		Distortion_High_Band,
 		OutputGain_High_Band,
 
 		Bypassed_Low_Band,
-		Bypassed_MidLow_Band,
-		Bypassed_MidHigh_Band,
+		Bypassed_Mid_Band,
 		Bypassed_High_Band,
 	};
 
@@ -45,29 +39,24 @@ namespace Params
 	{
 		static std::map<Names, juce::String> params =
 		{
-			{Low_MidLow_Freq, "Low-MidLow Frequency"},
-			{MidLow_MidHigh_Freq, "MidLow-MidHigh Frequency"},
-			{MidHigh_High_Freq, "MidHigh-High Frequency"},
+			{Low_Mid_Freq, "Low-Mid Frequency"},
+			{Mid_High_Freq, "Mid-High Frequency"},
 
 			{InputGain_Low_Band, "Low Input Gain"},
 			{Distortion_Low_Band, "Low Distortion"},
 			{OutputGain_Low_Band, "Low OutputGain"},
 
-			{InputGain_MidLow_Band, "MidLow Input Gain"},
-			{Distortion_MidLow_Band, "MidLow Distortiony"},
-			{OutputGain_MidLow_Band, "MidLow OutputGain"},
+			{InputGain_Mid_Band, "Mid Input Gain"},
+			{Distortion_Mid_Band, "Mid Distortiony"},
+			{OutputGain_Mid_Band, "Mid OutputGain"},
 
-			{InputGain_MidHigh_Band, "MidHigh Input Gain"},
-			{Distortion_MidHigh_Band, "MidHigh Distortion"},
-			{OutputGain_MidHigh_Band, "MidHigh OutputGain"},
 
 			{InputGain_High_Band, "High Input Gain"},
 			{Distortion_High_Band, "High Distortion"},
 			{OutputGain_High_Band, "High OutputGain"},
 
 			{Bypassed_Low_Band, "Low Bypass"},
-			{Bypassed_MidLow_Band, "MidLow Bypass"},
-			{Bypassed_MidHigh_Band, "MidHigh Bypass"},
+			{Bypassed_Mid_Band, "Mid Bypass"},
 			{Bypassed_High_Band, "High Bypass"},
 		};
 		return params;
@@ -75,8 +64,8 @@ namespace Params
 }
 struct DistortionBand
 {
-
 	float inputGainInDecibels{ 0.0f }, outputGainInDecibels{ 0.0f }, drive{ 1.0f };
+	bool bypassed{false};
 	void prepare(const juce::dsp::ProcessSpec& spec)
 	{
 		processorChain.prepare(spec);
@@ -87,17 +76,18 @@ struct DistortionBand
 		//Input gain
 		juce::dsp::AudioBlock<float> block(buffer);
 		juce::dsp::ProcessContextReplacing<float> context(block);
-
+		
 		buffer.applyGain(juce::Decibels::decibelsToGain(DistortionBand::inputGainInDecibels));
 		buffer.applyGain(juce::Decibels::decibelsToGain(DistortionBand::outputGainInDecibels));
 
-		//context.isBypassed = DistortionBand::bypassed->get();
+		
 		DistortionBand::processorChain.process(context);
 	}
 
 	void updateDistortionSettings()
 	{
 		//Distortion
+		
 		auto& waveshaper = DistortionBand::processorChain.template get<0>();
 		float drive = DistortionBand::drive;
 		float clipping{ 300.f };
@@ -158,18 +148,25 @@ public:
 	using APVTS = juce::AudioProcessorValueTreeState;
 	static APVTS::ParameterLayout createParameterLayout();
 	APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
-	juce::AudioParameterBool* bypassed{ nullptr };
+	//juce::AudioParameterBool* bypassed{ nullptr };
 
 private:
 	DistortionBand distortion;
 
 	using Filter = juce::dsp::LinkwitzRileyFilter<float>;
-	Filter LP, HP;
+	//		fc0	fc1
+	Filter LP1, AP2,
+		   HP1, LP2,
+				HP2;
 
-	juce::AudioParameterFloat* lowCrossover { nullptr };
+	Filter invAP1, invAP2;
+	juce::AudioBuffer<float> invAPBuffer;
 
-	std::array<juce::AudioBuffer<float>, 2> filterBuffers;
+	juce::AudioParameterFloat* lowMidCrossover { nullptr };
+	juce::AudioParameterFloat* midHighCrossover { nullptr };
+
+	std::array<juce::AudioBuffer<float>, 3> filterBuffers;
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessor);
-	void updateDistortionSettings(juce::AudioProcessorValueTreeState& apvts);
+	//void updateDistortionSettings(juce::AudioProcessorValueTreeState& apvts);
 };
