@@ -8,6 +8,31 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+template<typename T>
+bool truncateKiloValue(T& value)
+{
+    if (value > static_cast<T>(999))
+    {
+        value /= static_cast<T>(1000);
+        return true;
+    }
+    return false;
+}
+
+juce::String getValString(const juce::RangedAudioParameter& param, bool getLow, juce::String suffix)
+{
+    juce::String str;
+    auto val = getLow ? param.getNormalisableRange().start : param.getNormalisableRange().end;
+    bool useK = truncateKiloValue(val);
+    str << val;
+    if (useK)
+    {
+        str << "k";
+    }
+    str << suffix;
+
+        return str;
+}
 void LookAndFeel::drawRotarySlider(juce::Graphics& g,
     int x,
     int y,
@@ -201,17 +226,17 @@ juce::String RotarySliderWithLabels::getDisplayString() const
     {
         float val = getValue();
 
-        if (val > 999.f)
-        {
-            val /= 1000.f; //1001 / 1000 = 1.001
-            addK = true;
-        }
-
+        //if (val > 999.f)
+        //{
+        //    val /= 1000.f; //1001 / 1000 = 1.001
+        //    addK = true;
+        //}
+        addK = truncateKiloValue(val);
         str = juce::String(val, (addK ? 2 : 0));
     }
     else
     {
-        jassertfalse; //this shouldn't happen!
+        jassertfalse;
     }
 
     if (suffix.isNotEmpty())
@@ -243,15 +268,26 @@ GlobalControls::GlobalControls(juce::AudioProcessorValueTreeState& apvts)
     using namespace Params;
     const auto& params = GetParams();
 
+    auto getParamHelper = [&params, &apvts](const auto& name) -> auto& 
+    {
+        return getParam(apvts, params, name);
+    };
+ 
+    lowMidXoverSlider = std::make_unique<RSWL>(getParamHelper(Names::Low_Mid_Freq), "Hz");
+    midHighXoverSlider = std::make_unique<RSWL>(getParamHelper(Names::Mid_High_Freq), "Hz");
+
     auto makeAttachmentHelper = [&params, &apvts](auto& attachment, const auto& name, auto& slider) {
         makeAttachment(attachment, apvts, params, name, slider);
     };
 
-    makeAttachmentHelper(lowMidXoverSliderAttachment, Names::Low_Mid_Freq, lowMidXoverSlider);
-    makeAttachmentHelper(midHighXoverSliderAttachment, Names::Mid_High_Freq, midHighXoverSlider);
+    makeAttachmentHelper(lowMidXoverSliderAttachment, Names::Low_Mid_Freq, *lowMidXoverSlider);
+    makeAttachmentHelper(midHighXoverSliderAttachment, Names::Mid_High_Freq, *midHighXoverSlider);
 
-    addAndMakeVisible(lowMidXoverSlider);
-    addAndMakeVisible(midHighXoverSlider);
+    addLabelPairs(lowMidXoverSlider->labels, getParamHelper(Names::Low_Mid_Freq), "Hz");
+    addLabelPairs(midHighXoverSlider->labels, getParamHelper(Names::Mid_High_Freq), "Hz");
+
+    addAndMakeVisible(*lowMidXoverSlider);
+    addAndMakeVisible(*midHighXoverSlider);
 }
 void GlobalControls::paint(juce::Graphics& g)
 {
@@ -269,14 +305,22 @@ void GlobalControls::paint(juce::Graphics& g)
 void GlobalControls::resized()
 {
     using namespace juce;
-    auto bounds = getLocalBounds();
+    auto bounds = getLocalBounds().reduced(5);
+
+
+    auto spacer = FlexItem().withWidth(4);
+    auto endCap = FlexItem().withWidth(6);
 
     FlexBox flexBox;
     flexBox.flexDirection = FlexBox::Direction::row;
     flexBox.flexWrap = FlexBox::Wrap::noWrap;
 
-    flexBox.items.add(FlexItem(lowMidXoverSlider).withFlex(1.f));
-    flexBox.items.add(FlexItem(midHighXoverSlider).withFlex(1.f));
+
+    flexBox.items.add(endCap);
+    flexBox.items.add(FlexItem(*lowMidXoverSlider).withFlex(1.f));
+    flexBox.items.add(spacer);
+    flexBox.items.add(FlexItem(*midHighXoverSlider).withFlex(1.f));
+    flexBox.items.add(endCap);
 
     flexBox.performLayout(bounds);
 }

@@ -118,6 +118,33 @@ void makeAttachment(std::unique_ptr<Attachment>& attachment,APVTS& apvts, const 
 	attachment = std::make_unique<Attachment>(apvts, params.at(name), slider);
 }
 
+template<
+	typename APVTS,
+	 typename Params,
+	 typename Name
+>
+juce::RangedAudioParameter& getParam(APVTS& apvts, const Params& params, const Name& name)
+{
+	auto param = apvts.getParameter(params.at(name));
+	jassert(param != nullptr);
+
+	return *param;
+}
+
+juce::String getValString(const juce::RangedAudioParameter& param, bool getLow, juce::String suffix);
+
+template<
+	typename Labels,
+	typename ParamType,
+	typename SuffixType
+>
+void addLabelPairs(Labels& labels, const ParamType& param, const SuffixType& suffix)
+{
+	labels.clear();
+	labels.add({ 0.f,getValString(param, true, suffix) });
+	labels.add({ 1.f,getValString(param, false, suffix) });
+
+}
 
 struct GlobalControls : juce::Component
 {
@@ -126,7 +153,8 @@ struct GlobalControls : juce::Component
 
 	void resized() override;
 private:
-	RotarySlider lowMidXoverSlider, midHighXoverSlider;
+	using RSWL = RotarySliderWithLabels;
+	std::unique_ptr<RSWL> lowMidXoverSlider, midHighXoverSlider;
 
 	using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 	std::unique_ptr<Attachment> lowMidXoverSliderAttachment, midHighXoverSliderAttachment;
