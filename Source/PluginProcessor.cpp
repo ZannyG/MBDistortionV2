@@ -10,6 +10,13 @@
 #include "PluginEditor.h"
 
 //==============================================================================
+DistortionBand::DistortionBand(juce::AudioProcessorValueTreeState* apvts, BandFreq bandFrequency) :
+	bandFreq{ bandFrequency },
+	p_apvts{ apvts }
+{
+	updateDistortionSettings();
+}
+
 MBDistortionAudioProcessor::MBDistortionAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
 	: AudioProcessor(BusesProperties()
@@ -22,23 +29,12 @@ MBDistortionAudioProcessor::MBDistortionAudioProcessor()
 	)
 #endif
 {
+	p_lowBandDist = new DistortionBand(&apvts, DistortionBand::BandFreq::lowBand);
+	p_midBandDist = new DistortionBand(&apvts, DistortionBand::BandFreq::midBand);
+	p_highBandDist = new DistortionBand(&apvts, DistortionBand::BandFreq::highBand);
+
 	using namespace Params;
 	const auto& params = GetParams();
-
-	auto floatHelper = [&apvts = this->apvts, &params](auto& param, const auto& paramName)
-	{
-		auto* parameter = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(params.at(paramName)));
-		jassert(parameter != nullptr);
-	};
-
-	floatHelper(distortion.inputGainInDecibels, Names::InputGain_Low_Band);
-	floatHelper(distortion.drive, Names::Distortion_Low_Band);
-	floatHelper(distortion.outputGainInDecibels, Names::OutputGain_Low_Band);
-
-	floatHelper(lowMidCrossover, Names::Low_Mid_Freq);
-	floatHelper(midHighCrossover, Names::Mid_High_Freq);
-
-
 
 	lowMidCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter("Low-Mid Frequency"));
 	jassert(lowMidCrossover != nullptr);
@@ -49,18 +45,16 @@ MBDistortionAudioProcessor::MBDistortionAudioProcessor()
 	HP1.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
 
 	AP2.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
-	
+
 	LP2.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
 	HP2.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
-
-	invAP1.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
-	invAP2.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
 
 }
 
 MBDistortionAudioProcessor::~MBDistortionAudioProcessor()
 {
 }
+
 
 //==============================================================================
 const juce::String MBDistortionAudioProcessor::getName() const
@@ -132,8 +126,6 @@ void MBDistortionAudioProcessor::prepareToPlay(double sampleRate, int samplesPer
 	spec.numChannels = getTotalNumInputChannels();
 	spec.sampleRate = sampleRate;
 
-	distortion.prepare(spec);
-
 	LP1.prepare(spec);
 	HP1.prepare(spec);
 
@@ -142,11 +134,6 @@ void MBDistortionAudioProcessor::prepareToPlay(double sampleRate, int samplesPer
 	LP2.prepare(spec);
 	HP2.prepare(spec);
 
-
-	invAP1.prepare(spec);
-	invAP2.prepare(spec);
-
-	invAPBuffer.setSize(spec.numChannels, samplesPerBlock);
 	for (auto& buffer : filterBuffers)
 	{
 		buffer.setSize(spec.numChannels, samplesPerBlock);
@@ -184,6 +171,46 @@ bool MBDistortionAudioProcessor::isBusesLayoutSupported(const BusesLayout& layou
 #endif
 }
 #endif
+void MBDistortionAudioProcessor::updateState()
+{
+	auto lowMidCutoffFreq = lowMidCrossover->get();
+	LP1.setCutoffFrequency(lowMidCutoffFreq);
+	HP1.setCutoffFrequency(lowMidCutoffFreq);
+
+	auto midHighCutoffFreq = midHighCrossover->get();
+
+	AP2.setCutoffFrequency(midHighCutoffFreq);
+	LP2.setCutoffFrequency(midHighCutoffFreq);
+	HP2.setCutoffFrequency(midHighCutoffFreq);
+}
+
+void MBDistortionAudioProcessor::splitBands(const juce::AudioBuffer<float>& inputBuffer)
+{
+	for (auto& fb : filterBuffers)
+	{
+		fb = inputBuffer;
+	}
+
+	auto fb0Block = juce::dsp::AudioBlock<float>(filterBuffers[0]);
+	auto fb1Block = juce::dsp::AudioBlock<float>(filterBuffers[1]);
+	auto fb2Block = juce::dsp::AudioBlock<float>(filterBuffers[2]);
+
+	auto fb0Ctx = juce::dsp::ProcessContextReplacing<float>(fb0Block);
+	auto fb1Ctx = juce::dsp::ProcessContextReplacing<float>(fb1Block);
+	auto fb2Ctx = juce::dsp::ProcessContextReplacing<float>(fb2Block);
+
+	LP1.process(fb0Ctx);
+	AP2.process(fb0Ctx);
+
+	HP1.process(fb1Ctx);
+	filterBuffers[2] = filterBuffers[1];
+	LP2.process(fb1Ctx);
+	HP2.process(fb2Ctx);
+
+	p_lowBandDist->process(fb0Ctx);
+	p_midBandDist->process(fb1Ctx);
+	p_highBandDist->process(fb2Ctx);
+}
 
 void MBDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& midiMessages)
 {
@@ -201,64 +228,15 @@ void MBDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
-	//updateDistortionSettings(apvts);
-	const auto params = GetParams();
-	distortion.updateDistortionSettings();
-	distortion.bypassed = apvts.getRawParameterValue("Low Bypass")->load();
-	distortion.process(buffer);
-
-	for (auto& fb : filterBuffers)
-	{
-		fb = buffer;
-	}
-
-	invAPBuffer = buffer;
-
-	auto lowMidCutoffFreq = lowMidCrossover->get();
-	LP1.setCutoffFrequency(lowMidCutoffFreq);
-	HP1.setCutoffFrequency(lowMidCutoffFreq);
-	invAP1.setCutoffFrequency(lowMidCutoffFreq);
-
-	auto midHighCutoffFreq = midHighCrossover->get();
-
-	AP2.setCutoffFrequency(midHighCutoffFreq);
-	LP2.setCutoffFrequency(midHighCutoffFreq);
-	HP2.setCutoffFrequency(midHighCutoffFreq);
-	invAP2.setCutoffFrequency(midHighCutoffFreq);
-
-	auto fb0Block = juce::dsp::AudioBlock<float>(filterBuffers[0]);
-	auto fb1Block = juce::dsp::AudioBlock<float>(filterBuffers[1]);
-	auto fb2Block = juce::dsp::AudioBlock<float>(filterBuffers[2]);
-
-
-	auto fb0Ctx = juce::dsp::ProcessContextReplacing<float>(fb0Block);
-	auto fb1Ctx = juce::dsp::ProcessContextReplacing<float>(fb1Block);
-	auto fb2Ctx = juce::dsp::ProcessContextReplacing<float>(fb2Block);
-
-
-	LP1.process(fb0Ctx);
-	AP2.process(fb0Ctx);
-
-	HP1.process(fb1Ctx);
-	filterBuffers[2] = filterBuffers[1];
-	LP2.process(fb1Ctx);
-	HP2.process(fb2Ctx);
-
-	auto invAPBlock = juce::dsp::AudioBlock<float>(invAPBuffer);
-	auto invAPCtx = juce::dsp::ProcessContextReplacing<float>(invAPBlock);
-
-	invAP1.process(invAPCtx);
-	invAP2.process(invAPCtx);
+	updateState();
+	splitBands(buffer);
 
 	auto numSamples = buffer.getNumSamples();
 	auto numChannels = buffer.getNumChannels();
-	//if (distortion.bypassed)
-	//{
-	//	return;
-	//}
+
 	buffer.clear();
 
-
+	
 	auto addFilterBand = [nc = numChannels, ns = numSamples](auto& inputBuffer, const auto& source)
 	{
 		for (auto i = 0; i < nc; ++i)
@@ -270,15 +248,6 @@ void MBDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
 	addFilterBand(buffer, filterBuffers[0]);
 	addFilterBand(buffer, filterBuffers[1]);
 	addFilterBand(buffer, filterBuffers[2]);
-
-	if (distortion.bypassed)
-	{
-		for (auto ch = 0; ch < numChannels; ++ch)
-		{
-			juce::FloatVectorOperations::multiply(invAPBuffer.getWritePointer(ch), -1.f, numSamples);
-		}
-		addFilterBand(buffer, invAPBuffer);
-	}
 
 	// This is the place where you'd normally do the guts of your plugin's
 	// audio processing...
@@ -302,8 +271,8 @@ bool MBDistortionAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MBDistortionAudioProcessor::createEditor()
 {
-	//return new MBDistortionAudioProcessorEditor (*this);
-	return new juce::GenericAudioProcessorEditor(*this);
+	return new MBDistortionAudioProcessorEditor (*this);
+	//return new juce::GenericAudioProcessorEditor(*this);
 
 }
 
@@ -328,27 +297,6 @@ void MBDistortionAudioProcessor::setStateInformation(const void* data, int sizeI
 	// whose contents will have been created by the getStateInformation() call.
 }
 
-//void MBDistortionAudioProcessor::updateDistortionSettings(juce::AudioProcessorValueTreeState& apvts)
-//{
-//	using namespace Params;
-//	const auto& params = GetParams();
-//
-//	auto floatHelper = [&apvts = this->apvts, &params](auto& param, const auto& paramName)
-//	{
-//		auto* parameter = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(params.at(paramName)));
-//		jassert(parameter != nullptr);
-//	};
-//
-//	floatHelper(distortion.inputGainInDecibels, Names::InputGain_Low_Band);
-//	floatHelper(distortion.drive, Names::Distortion_Low_Band);
-//	floatHelper(distortion.outputGainInDecibels, Names::OutputGain_Low_Band);
-//	floatHelper(lowCrossover, Names::Low_MidLow_Freq);
-//
-//	LP.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
-//	HP.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
-//}
-
-
 juce::AudioProcessorValueTreeState::ParameterLayout MBDistortionAudioProcessor::createParameterLayout()
 {
 	APVTS::ParameterLayout layout;
@@ -357,13 +305,24 @@ juce::AudioProcessorValueTreeState::ParameterLayout MBDistortionAudioProcessor::
 	using namespace Params;
 	const auto& params = GetParams();
 
-	auto driveRange = NormalisableRange<float>(1, 100, 1, 1);
+	auto driveRange = NormalisableRange<float>(-30, 30, 1, 1);
 	auto gainRange = NormalisableRange<float>(-24, 24, 0.5, 1);
 
 	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::InputGain_Low_Band), params.at(Names::InputGain_Low_Band), gainRange, 0));
 	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Distortion_Low_Band), params.at(Names::Distortion_Low_Band), driveRange, 0));
 	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::OutputGain_Low_Band), params.at(Names::OutputGain_Low_Band), gainRange, 0));
+
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::InputGain_Mid_Band), params.at(Names::InputGain_Mid_Band), gainRange, 0));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Distortion_Mid_Band), params.at(Names::Distortion_Mid_Band), driveRange, 0));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::OutputGain_Mid_Band), params.at(Names::OutputGain_Mid_Band), gainRange, 0));
+
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::InputGain_High_Band), params.at(Names::InputGain_High_Band), gainRange, 0));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Distortion_High_Band), params.at(Names::Distortion_High_Band), driveRange, 0));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::OutputGain_High_Band), params.at(Names::OutputGain_High_Band), gainRange, 0));
+
 	layout.add(std::make_unique <AudioParameterBool>(params.at(Names::Bypassed_Low_Band), params.at(Names::Bypassed_Low_Band), false));
+	layout.add(std::make_unique <AudioParameterBool>(params.at(Names::Bypassed_Mid_Band), params.at(Names::Bypassed_Mid_Band), false));
+	layout.add(std::make_unique <AudioParameterBool>(params.at(Names::Bypassed_High_Band), params.at(Names::Bypassed_High_Band), false));
 
 	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Low_Mid_Freq), params.at(Names::Low_Mid_Freq), NormalisableRange<float>(20, 999, 1, 1), 400));
 	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Mid_High_Freq), params.at(Names::Mid_High_Freq), NormalisableRange<float>(1000, 20000, 1, 1), 2000));

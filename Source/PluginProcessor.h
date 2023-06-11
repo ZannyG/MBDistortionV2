@@ -47,7 +47,7 @@ namespace Params
 			{OutputGain_Low_Band, "Low OutputGain"},
 
 			{InputGain_Mid_Band, "Mid Input Gain"},
-			{Distortion_Mid_Band, "Mid Distortiony"},
+			{Distortion_Mid_Band, "Mid Distortion"},
 			{OutputGain_Mid_Band, "Mid OutputGain"},
 
 
@@ -64,40 +64,84 @@ namespace Params
 }
 struct DistortionBand
 {
-	float inputGainInDecibels{ 0.0f }, outputGainInDecibels{ 0.0f }, drive{ 1.0f };
-	bool bypassed{false};
+public:
+	enum class BandFreq
+	{
+		lowBand,
+		midBand,
+		highBand,
+	};
+	
+	DistortionBand(juce::AudioProcessorValueTreeState* p_apvts, BandFreq bandFreq);
+
+
 	void prepare(const juce::dsp::ProcessSpec& spec)
 	{
 		processorChain.prepare(spec);
 	}
 
-	void process(juce::AudioBuffer<float>& buffer)
+	void process(const juce::dsp::ProcessContextReplacing<float>& context) 
 	{
-		//Input gain
-		juce::dsp::AudioBlock<float> block(buffer);
-		juce::dsp::ProcessContextReplacing<float> context(block);
-		
-		buffer.applyGain(juce::Decibels::decibelsToGain(DistortionBand::inputGainInDecibels));
-		buffer.applyGain(juce::Decibels::decibelsToGain(DistortionBand::outputGainInDecibels));
-
-		
-		DistortionBand::processorChain.process(context);
+		updateDistortionSettings();
+		if (!bypassed)
+		{
+			processorChain.process(context);
+		}
 	}
-
+private:
+	juce::AudioProcessorValueTreeState* p_apvts;
+	BandFreq bandFreq;
+	juce::dsp::ProcessorChain<juce::dsp::Gain<float>,WaveShaper, juce::dsp::Gain<float>> processorChain;
+	float drive{ 0.f };
+	float inputGainInDecibels{ 0.0f }, outputGainInDecibels{ 0.0f };
+	bool bypassed{ false };
+	enum
+	{
+		preGainIndex,
+		waveShaperIndex,
+		postGainIndex,
+	};
 	void updateDistortionSettings()
 	{
-		//Distortion
-		
-		auto& waveshaper = DistortionBand::processorChain.template get<0>();
-		float drive = DistortionBand::drive;
-		float clipping{ 300.f };
-		waveshaper.functionToUse = [drive, clipping](float x)
+		using namespace Params;
+		const auto& params = GetParams();
+		switch (bandFreq)
 		{
-			return juce::jlimit(float(-clipping), float(clipping), x * (drive * 2));
+		case DistortionBand::BandFreq::lowBand:
+			drive = p_apvts->getRawParameterValue(params.at(Names::Distortion_Low_Band))->load();
+			inputGainInDecibels = p_apvts->getRawParameterValue(params.at(Names::InputGain_Low_Band))->load();
+			outputGainInDecibels = p_apvts->getRawParameterValue(params.at(Names::OutputGain_Low_Band))->load();
+			bypassed = p_apvts->getRawParameterValue(params.at(Names::Bypassed_Low_Band))->load();
+			break;
+		case DistortionBand::BandFreq::midBand:
+			drive = p_apvts->getRawParameterValue(params.at(Names::Distortion_Mid_Band))->load();
+			inputGainInDecibels = p_apvts->getRawParameterValue(params.at(Names::InputGain_Mid_Band))->load();
+			outputGainInDecibels = p_apvts->getRawParameterValue(params.at(Names::OutputGain_Mid_Band))->load();
+			bypassed = p_apvts->getRawParameterValue(params.at(Names::Bypassed_Mid_Band))->load();
+			break;
+		case DistortionBand::BandFreq::highBand:
+			drive = p_apvts->getRawParameterValue(params.at(Names::Distortion_High_Band))->load();
+			inputGainInDecibels = p_apvts->getRawParameterValue(params.at(Names::InputGain_High_Band))->load();
+			outputGainInDecibels = p_apvts->getRawParameterValue(params.at(Names::OutputGain_High_Band))->load();
+			bypassed = p_apvts->getRawParameterValue(params.at(Names::Bypassed_High_Band))->load();
+			break;
+		default:
+			break;
+		}
+
+		auto& preGain = processorChain.template get<preGainIndex>();
+		preGain.setGainDecibels(inputGainInDecibels);
+		auto& postGain = processorChain.template get<postGainIndex>();
+		postGain.setGainDecibels(outputGainInDecibels);
+
+		float clipping{ 0.5f };
+		float driveInGain{juce::Decibels::decibelsToGain(drive)};
+		auto& waveshaper = processorChain.template get<waveShaperIndex>();
+		waveshaper.functionToUse = [driveInGain, clipping](float x)
+		{
+			return juce::jlimit(float(-clipping), float(clipping), x * (driveInGain))* 1/clipping;
 		};
 	}
-public:
-	juce::dsp::ProcessorChain<WaveShaper> processorChain;
 };
 
 
@@ -148,25 +192,25 @@ public:
 	using APVTS = juce::AudioProcessorValueTreeState;
 	static APVTS::ParameterLayout createParameterLayout();
 	APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
-	//juce::AudioParameterBool* bypassed{ nullptr };
 
 private:
-	DistortionBand distortion;
+	DistortionBand* p_lowBandDist;
+	DistortionBand* p_midBandDist ;
+	DistortionBand* p_highBandDist;
 
 	using Filter = juce::dsp::LinkwitzRileyFilter<float>;
-	//		fc0	fc1
-	Filter LP1, AP2,
-		   HP1, LP2,
-				HP2;
 
-	Filter invAP1, invAP2;
-	juce::AudioBuffer<float> invAPBuffer;
+	Filter LP1, AP2,
+		HP1, LP2,
+		HP2;
 
 	juce::AudioParameterFloat* lowMidCrossover { nullptr };
 	juce::AudioParameterFloat* midHighCrossover { nullptr };
 
 	std::array<juce::AudioBuffer<float>, 3> filterBuffers;
+
+	void updateState();
+	void splitBands(const juce::AudioBuffer<float>& inputBuffer);
 	//==============================================================================
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessor);
-	//void updateDistortionSettings(juce::AudioProcessorValueTreeState& apvts);
 };
