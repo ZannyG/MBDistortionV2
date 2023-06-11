@@ -155,10 +155,10 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
     auto sliderBounds = getSliderBounds();
 
-    //    g.setColour(Colours::red);
-    //    g.drawRect(getLocalBounds());
-    //    g.setColour(Colours::yellow);
-    //    g.drawRect(sliderBounds);
+    auto bounds = getLocalBounds();
+
+    g.setColour(Colours::blueviolet);
+    g.drawFittedText(getName(), bounds.removeFromTop(getTextHeight() + 2), Justification::centredBottom, 1);
 
     getLookAndFeel().drawRotarySlider(g,
         sliderBounds.getX(),
@@ -201,14 +201,15 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 {
     auto bounds = getLocalBounds();
-
+    bounds.removeFromTop(getTextHeight() * 1.5);
+    
     auto size = juce::jmin(bounds.getWidth(), bounds.getHeight());
 
-    size -= getTextHeight() * 2;
+    size -= getTextHeight() * 1.5;
     juce::Rectangle<int> r;
     r.setSize(size, size);
     r.setCentre(bounds.getCentreX(), 0);
-    r.setY(2);
+    r.setY(bounds.getY());
 
     return r;
 
@@ -273,18 +274,21 @@ GlobalControls::GlobalControls(juce::AudioProcessorValueTreeState& apvts)
         return getParam(apvts, params, name);
     };
  
-    lowMidXoverSlider = std::make_unique<RSWL>(getParamHelper(Names::Low_Mid_Freq), "Hz");
-    midHighXoverSlider = std::make_unique<RSWL>(getParamHelper(Names::Mid_High_Freq), "Hz");
+    auto& lowMidParam = getParamHelper(Names::Low_Mid_Crossover_Freq);
+    auto& midHighParam = getParamHelper(Names::Mid_High_Crossover_Freq);
+
+    lowMidXoverSlider = std::make_unique<RSWL>(lowMidParam, "Hz", "LOW_MID X-OVER");
+    midHighXoverSlider = std::make_unique<RSWL>(midHighParam, "Hz", "MID_HIGH X-OVER");
 
     auto makeAttachmentHelper = [&params, &apvts](auto& attachment, const auto& name, auto& slider) {
         makeAttachment(attachment, apvts, params, name, slider);
     };
 
-    makeAttachmentHelper(lowMidXoverSliderAttachment, Names::Low_Mid_Freq, *lowMidXoverSlider);
-    makeAttachmentHelper(midHighXoverSliderAttachment, Names::Mid_High_Freq, *midHighXoverSlider);
+    makeAttachmentHelper(lowMidXoverSliderAttachment, Names::Low_Mid_Crossover_Freq, *lowMidXoverSlider);
+    makeAttachmentHelper(midHighXoverSliderAttachment, Names::Mid_High_Crossover_Freq, *midHighXoverSlider);
 
-    addLabelPairs(lowMidXoverSlider->labels, getParamHelper(Names::Low_Mid_Freq), "Hz");
-    addLabelPairs(midHighXoverSlider->labels, getParamHelper(Names::Mid_High_Freq), "Hz");
+    addLabelPairs(lowMidXoverSlider->labels, lowMidParam, "Hz");
+    addLabelPairs(midHighXoverSlider->labels, midHighParam, "Hz");
 
     addAndMakeVisible(*lowMidXoverSlider);
     addAndMakeVisible(*midHighXoverSlider);
@@ -336,7 +340,7 @@ MBDistortionAudioProcessorEditor::MBDistortionAudioProcessorEditor (MBDistortion
     addAndMakeVisible(globalControls);
     addAndMakeVisible(bandControls);
 
-    setSize (600, 500);
+    setSize (650, 550);
 }
 
 MBDistortionAudioProcessorEditor::~MBDistortionAudioProcessorEditor()

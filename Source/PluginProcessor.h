@@ -15,8 +15,8 @@ namespace Params
 {
 	enum Names
 	{
-		Low_Mid_Freq,
-		Mid_High_Freq,
+		Low_Mid_Crossover_Freq,
+		Mid_High_Crossover_Freq,
 
 		InputGain_Low_Band,
 		Distortion_Low_Band,
@@ -39,8 +39,8 @@ namespace Params
 	{
 		static std::map<Names, juce::String> params =
 		{
-			{Low_Mid_Freq, "Low-Mid Frequency"},
-			{Mid_High_Freq, "Mid-High Frequency"},
+			{Low_Mid_Crossover_Freq, "Low-Mid Frequency"},
+			{Mid_High_Crossover_Freq, "Mid-High Frequency"},
 
 			{InputGain_Low_Band, "Low Input Gain"},
 			{Distortion_Low_Band, "Low Distortion"},
