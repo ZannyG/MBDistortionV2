@@ -35,6 +35,14 @@ private:
 
 	juce::Component::SafePointer<DistortionBandControls> safePtr{this};
 
+	juce::ToggleButton* activeBand = &lowBandButton;
+
 	void updateAttachments();
 	void updateSliderEnablements();
+	void updateActiveBandFillColors(juce::Button& clickedButton);
+
+	void resetActiveBandColors();
+	static void refreshBandButtonColors(juce::Button& band, juce::Button& colorSource);
+
+	void updateBandSelectButtonStates();
 };

@@ -19,29 +19,6 @@ DistortionBandControls::DistortionBandControls(juce::AudioProcessorValueTreeStat
 	distortionSlider(nullptr, "%", "DRIVE"),
 	outputGainSlider(nullptr, "dB", "OUTPUT")
 {
-	/*using namespace Params;
-	const auto& params = GetParams();*/
-
-	/*auto getParamHelper = [&params, &apvts = this-> apvts](const auto& name) -> auto&
-	{
-		return getParam(apvts, params, name);
-	};
-
-	inputGainSlider.changeParam(&getParamHelper(Names::InputGain_Mid_Band));
-	outputGainSlider.changeParam(&getParamHelper(Names::OutputGain_Mid_Band));
-	distortionSlider.changeParam(&getParamHelper(Names::Distortion_Mid_Band));
-
-	addLabelPairs(inputGainSlider.labels, getParamHelper(Names::InputGain_Mid_Band), "dB");
-	addLabelPairs(distortionSlider.labels, getParamHelper(Names::Distortion_Mid_Band), "%");
-	addLabelPairs(inputGainSlider.labels, getParamHelper(Names::OutputGain_Mid_Band), "dB");*/
-
-	//auto makeAttachmentHelper = [&params, &apvts = this-> apvts](auto& attachment, const auto& name, auto& slider) {
-	//	makeAttachment(attachment, apvts, params, name, slider);
-	//};
-
-	//makeAttachmentHelper(inputGainSliderAttachment, Names::InputGain_Mid_Band, inputGainSlider);
-	//makeAttachmentHelper(outputGainSliderAttachment, Names::OutputGain_Mid_Band, outputGainSlider);
-	//makeAttachmentHelper(distortionSliderAttachment, Names::Distortion_Mid_Band, distortionSlider);
 	addAndMakeVisible(inputGainSlider);
 	addAndMakeVisible(outputGainSlider);
 	addAndMakeVisible(distortionSlider);
@@ -49,14 +26,22 @@ DistortionBandControls::DistortionBandControls(juce::AudioProcessorValueTreeStat
 	bypassButton.addListener(this);
 
 	bypassButton.setName("X");
+	bypassButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::red);
+	bypassButton.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
 
 	addAndMakeVisible(bypassButton);
 
-	//makeAttachmentHelper(bypassButtonAttachment, Names::Bypassed_Mid_Band, bypassButton);
-
 	lowBandButton.setName("Low");
+	lowBandButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::limegreen);
+	lowBandButton.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
+
 	midBandButton.setName("Mid");
+	midBandButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::green);
+	midBandButton.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
+
 	highBandButton.setName("High");
+	highBandButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::green);
+	highBandButton.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
 
 	lowBandButton.setRadioGroupId(1);
 	midBandButton.setRadioGroupId(1);
@@ -77,6 +62,8 @@ DistortionBandControls::DistortionBandControls(juce::AudioProcessorValueTreeStat
 	lowBandButton.setToggleState(true, juce::NotificationType::dontSendNotification);
 
 	updateAttachments();
+	updateSliderEnablements();
+	updateBandSelectButtonStates();
 
 	addAndMakeVisible(lowBandButton);
 	addAndMakeVisible(midBandButton);
@@ -101,7 +88,6 @@ void DistortionBandControls::resized()
 		flexBox.flexWrap = FlexBox::Wrap::noWrap;
 
 		auto spacer = FlexItem().withHeight(2);
-		//auto endCap = FlexItem().withWidth(6);
 
 		for (auto* comp : comps)
 		{
@@ -115,14 +101,12 @@ void DistortionBandControls::resized()
 	auto bandButtonControlBox = createBandButtonControlBox({ &bypassButton });
 	auto bandSelectControlBox = createBandButtonControlBox({ &lowBandButton, &midBandButton, &highBandButton });
 	auto spacer = FlexItem().withWidth(4);
-	//auto endCap = FlexItem().withWidth(6);
 
 	FlexBox flexBox;
 	flexBox.flexDirection = FlexBox::Direction::row;
 	flexBox.flexWrap = FlexBox::Wrap::noWrap;
 
 	flexBox.items.add(spacer);
-	//flexBox.items.add(endCap);
 	flexBox.items.add(FlexItem(bandSelectControlBox).withWidth(50));
 	flexBox.items.add(spacer);
 	flexBox.items.add(FlexItem(inputGainSlider).withFlex(1.f));
@@ -131,7 +115,6 @@ void DistortionBandControls::resized()
 	flexBox.items.add(spacer);
 	flexBox.items.add(FlexItem(outputGainSlider).withFlex(1.f));
 	flexBox.items.add(spacer);
-	//flexBox.items.add(endCap);
 	flexBox.items.add(FlexItem(bandButtonControlBox).withWidth(30));
 	flexBox.performLayout(bounds);
 }
@@ -146,6 +129,64 @@ void DistortionBandControls::paint(juce::Graphics& g)
 void DistortionBandControls::buttonClicked(juce::Button* button)
 {
 	updateSliderEnablements();
+	updateActiveBandFillColors(*button);
+}
+
+void DistortionBandControls::updateActiveBandFillColors(juce::Button& clickedButton)
+{
+	jassert(activeBand != nullptr);
+	if (clickedButton.getToggleState() == false)
+	{
+		resetActiveBandColors();
+	}
+	else
+	{
+		refreshBandButtonColors(*activeBand, clickedButton);
+	}
+}
+
+void DistortionBandControls::refreshBandButtonColors(juce::Button& band, juce::Button& colorSource)
+{
+	band.setColour(juce::TextButton::ColourIds::buttonOnColourId, colorSource.findColour(juce::TextButton::ColourIds::buttonOnColourId));
+
+	band.setColour(juce::TextButton::ColourIds::buttonColourId, colorSource.findColour(juce::TextButton::ColourIds::buttonOnColourId));
+	band.repaint();
+}
+
+void DistortionBandControls::resetActiveBandColors()
+{
+	activeBand->setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::limegreen);
+	activeBand->setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
+	activeBand->repaint();
+}
+
+void DistortionBandControls::updateBandSelectButtonStates()
+{
+	using namespace Params;
+
+	std::vector<std::array<Names, 1>> paramsToCheck
+	{
+		{Names::Bypassed_Low_Band},
+		{ Names::Bypassed_Mid_Band },
+		{ Names::Bypassed_High_Band },
+	};
+	const auto& params = GetParams();
+	auto paramHelper = [&params, this](const auto& name)
+	{
+		return dynamic_cast<juce::AudioParameterBool*>(&getParam(apvts,params,name));
+	};
+	for (size_t i = 0; i < paramsToCheck.size(); ++i)
+	{
+		auto& list = paramsToCheck[i];
+
+		auto* bandButton = (i == 0) ? &lowBandButton : i == 1 ? &midBandButton : &highBandButton;
+
+		if (auto * bypassed = paramHelper(list[0]);
+			bypassed->get())
+		{
+			refreshBandButtonColors(*bandButton, bypassButton);
+		}
+	}
 }
 
 void DistortionBandControls::updateSliderEnablements()
@@ -194,6 +235,7 @@ void DistortionBandControls::updateAttachments()
 			Names::OutputGain_Low_Band,
 			Names::Bypassed_Low_Band,
 		};
+		activeBand = &lowBandButton;
 		break;
 	}
 	case Mid:
@@ -205,6 +247,8 @@ void DistortionBandControls::updateAttachments()
 			Names::OutputGain_Mid_Band,
 			Names::Bypassed_Mid_Band,
 		};
+		activeBand = &midBandButton;
+
 		break;
 
 	}
@@ -217,6 +261,8 @@ void DistortionBandControls::updateAttachments()
 			Names::OutputGain_High_Band,
 			Names::Bypassed_High_Band,
 		};
+		activeBand = &highBandButton;
+
 		break;
 	}
 	}
