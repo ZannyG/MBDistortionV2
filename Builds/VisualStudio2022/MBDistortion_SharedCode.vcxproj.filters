@@ -601,13 +601,37 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Source\Distortion.cpp">
+    <ClCompile Include="..\..\Source\CustomButtons.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\DistortionBand.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\DistortionBandControls.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\GlobalControls.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\LookAndFeel.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Params.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\PluginEditor.cpp">
       <Filter>MBDistortion\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp">
       <Filter>MBDistortion\Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\Source\PluginEditor.cpp">
+    <ClCompile Include="..\..\Source\RotarySliderWithLabels.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\Utilities.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\UtilityComponents.cpp">
       <Filter>MBDistortion\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -3048,13 +3072,37 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Source\Distortion.h">
+    <ClInclude Include="..\..\Source\CustomButtons.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\DistortionBand.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\DistortionBandControls.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\GlobalControls.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\LookAndFeel.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Params.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\PluginEditor.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\PluginProcessor.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\Source\PluginEditor.h">
+    <ClInclude Include="..\..\Source\RotarySliderWithLabels.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Utilities.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\UtilityComponents.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h">

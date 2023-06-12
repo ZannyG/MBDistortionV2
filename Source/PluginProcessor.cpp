@@ -8,7 +8,8 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-
+#include "Params.h"
+#include "DistortionBand.h"
 //==============================================================================
 DistortionBand::DistortionBand(juce::AudioProcessorValueTreeState* apvts, BandFreq bandFrequency) :
 	bandFreq{ bandFrequency },

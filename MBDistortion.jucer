@@ -4,15 +4,42 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="sRPfwS" name="MBDistortion">
     <GROUP id="{D24DF6CA-1B73-EB01-B5DC-51445BA1F4DE}" name="Source">
-      <FILE id="ysClgm" name="Distortion.cpp" compile="1" resource="0" file="Source/Distortion.cpp"/>
-      <FILE id="Ncg0xA" name="Distortion.h" compile="0" resource="0" file="Source/Distortion.h"/>
+      <FILE id="vXxRY3" name="CustomButtons.cpp" compile="1" resource="0"
+            file="Source/CustomButtons.cpp"/>
+      <FILE id="N0NtSI" name="CustomButtons.h" compile="0" resource="0" file="Source/CustomButtons.h"/>
+      <FILE id="DgRBaa" name="DistortionBand.cpp" compile="1" resource="0"
+            file="Source/DistortionBand.cpp"/>
+      <FILE id="IqlA5X" name="DistortionBand.h" compile="0" resource="0"
+            file="Source/DistortionBand.h"/>
+      <FILE id="GlrzbD" name="DistortionBandControls.cpp" compile="1" resource="0"
+            file="Source/DistortionBandControls.cpp"/>
+      <FILE id="VoLj7r" name="DistortionBandControls.h" compile="0" resource="0"
+            file="Source/DistortionBandControls.h"/>
+      <FILE id="wDkDMB" name="GlobalControls.cpp" compile="1" resource="0"
+            file="Source/GlobalControls.cpp"/>
+      <FILE id="XRwKFy" name="GlobalControls.h" compile="0" resource="0"
+            file="Source/GlobalControls.h"/>
+      <FILE id="xp9oBU" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/LookAndFeel.cpp"/>
+      <FILE id="CTVajq" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
+      <FILE id="Noy2hB" name="Params.cpp" compile="1" resource="0" file="Source/Params.cpp"/>
+      <FILE id="vMuSmW" name="Params.h" compile="0" resource="0" file="Source/Params.h"/>
+      <FILE id="Hw1tvO" name="PluginEditor.cpp" compile="1" resource="0"
+            file="Source/PluginEditor.cpp"/>
+      <FILE id="OZgQLZ" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
       <FILE id="EKXMKZ" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="WqBLXH" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
-      <FILE id="Hw1tvO" name="PluginEditor.cpp" compile="1" resource="0"
-            file="Source/PluginEditor.cpp"/>
-      <FILE id="OZgQLZ" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="WnZmY0" name="RotarySliderWithLabels.cpp" compile="1" resource="0"
+            file="Source/RotarySliderWithLabels.cpp"/>
+      <FILE id="CkbHUz" name="RotarySliderWithLabels.h" compile="0" resource="0"
+            file="Source/RotarySliderWithLabels.h"/>
+      <FILE id="tvGNl2" name="Utilities.cpp" compile="1" resource="0" file="Source/Utilities.cpp"/>
+      <FILE id="eQPGSt" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
+      <FILE id="UU57Bq" name="UtilityComponents.cpp" compile="1" resource="0"
+            file="Source/UtilityComponents.cpp"/>
+      <FILE id="YWBdzT" name="UtilityComponents.h" compile="0" resource="0"
+            file="Source/UtilityComponents.h"/>
     </GROUP>
   </MAINGROUP>
   <JUCEOPTIONS JUCE_STRICT_REFCOUNTEDPOINTER="1" JUCE_VST3_CAN_REPLACE_VST2="0"/>
