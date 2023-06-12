@@ -251,6 +251,12 @@ juce::String RotarySliderWithLabels::getDisplayString() const
 
     return str;
 }
+
+void RotarySliderWithLabels::changeParam(juce::RangedAudioParameter* p)
+{
+    param = p;
+    repaint();
+}
 //==============================================================================
 
 
@@ -263,6 +269,81 @@ Placeholder::Placeholder()
     customColor = juce::Colour(r.nextInt(255), r.nextInt(255), r.nextInt(255));
 }
 //==============================================================================
+DistortionBandControls::DistortionBandControls(juce::AudioProcessorValueTreeState& apv):
+apvts(apv),
+inputGainSlider(nullptr, "dB", "INPUT"),
+distortionSlider(nullptr, "%", "DRIVE"),
+outputGainSlider(nullptr, "dB", "OUTPUT")
+{
+    using namespace Params;
+    const auto& params = GetParams();
+
+    auto getParamHelper = [&params, &apvts = this-> apvts](const auto& name) -> auto&
+    {
+        return getParam(apvts, params, name);
+    };
+
+    inputGainSlider.changeParam(&getParamHelper(Names::InputGain_Mid_Band));
+    outputGainSlider.changeParam(&getParamHelper(Names::OutputGain_Mid_Band));
+    distortionSlider.changeParam(&getParamHelper(Names::Distortion_Mid_Band));
+
+    addLabelPairs(inputGainSlider.labels, getParamHelper(Names::InputGain_Mid_Band), "dB");
+    addLabelPairs(distortionSlider.labels, getParamHelper(Names::Distortion_Mid_Band), "%");
+    addLabelPairs(inputGainSlider.labels, getParamHelper(Names::OutputGain_Mid_Band), "dB");
+
+    auto makeAttachmentHelper = [&params, &apvts = this-> apvts](auto& attachment, const auto& name, auto& slider) {
+        makeAttachment(attachment, apvts, params, name, slider);
+    };
+
+    makeAttachmentHelper(inputGainSliderAttachment, Names::InputGain_Mid_Band, inputGainSlider);
+    makeAttachmentHelper(outputGainSliderAttachment, Names::OutputGain_Mid_Band, outputGainSlider);
+    makeAttachmentHelper(distortionSliderAttachment, Names::Distortion_Mid_Band, distortionSlider);
+    addAndMakeVisible(inputGainSlider);
+    addAndMakeVisible(outputGainSlider);
+    addAndMakeVisible(distortionSlider);
+}
+
+void DistortionBandControls::resized()
+{
+    using namespace juce;
+    auto bounds = getLocalBounds().reduced(5);
+
+
+    auto spacer = FlexItem().withWidth(4);
+    auto endCap = FlexItem().withWidth(6);
+
+    FlexBox flexBox;
+    flexBox.flexDirection = FlexBox::Direction::row;
+    flexBox.flexWrap = FlexBox::Wrap::noWrap;
+
+
+    flexBox.items.add(endCap);
+    flexBox.items.add(FlexItem(inputGainSlider).withFlex(1.f));
+    flexBox.items.add(spacer);
+    flexBox.items.add(FlexItem(distortionSlider).withFlex(1.f));
+    flexBox.items.add(spacer);
+    flexBox.items.add(FlexItem(outputGainSlider).withFlex(1.f));
+    flexBox.items.add(endCap);
+
+    flexBox.performLayout(bounds);
+}
+
+void drawModuleBackground(juce::Graphics& g, juce::Rectangle<int> bounds)
+{
+    using namespace juce;
+    g.setColour(Colours::blueviolet);
+    g.fillAll();
+    auto localBound = bounds;
+    bounds.reduce(3, 3);
+    g.setColour(Colours::black);
+    g.fillRoundedRectangle(bounds.toFloat(), 3);
+}
+
+void DistortionBandControls::paint(juce::Graphics& g)
+{
+    auto bounds = getLocalBounds();
+    drawModuleBackground(g, bounds);
+}
 
 GlobalControls::GlobalControls(juce::AudioProcessorValueTreeState& apvts)
 {
@@ -277,8 +358,8 @@ GlobalControls::GlobalControls(juce::AudioProcessorValueTreeState& apvts)
     auto& lowMidParam = getParamHelper(Names::Low_Mid_Crossover_Freq);
     auto& midHighParam = getParamHelper(Names::Mid_High_Crossover_Freq);
 
-    lowMidXoverSlider = std::make_unique<RSWL>(lowMidParam, "Hz", "LOW_MID X-OVER");
-    midHighXoverSlider = std::make_unique<RSWL>(midHighParam, "Hz", "MID_HIGH X-OVER");
+    lowMidXoverSlider = std::make_unique<RSWL>(&lowMidParam, "Hz", "LOW_MID X-OVER");
+    midHighXoverSlider = std::make_unique<RSWL>(&midHighParam, "Hz", "MID_HIGH X-OVER");
 
     auto makeAttachmentHelper = [&params, &apvts](auto& attachment, const auto& name, auto& slider) {
         makeAttachment(attachment, apvts, params, name, slider);
@@ -295,15 +376,8 @@ GlobalControls::GlobalControls(juce::AudioProcessorValueTreeState& apvts)
 }
 void GlobalControls::paint(juce::Graphics& g)
 {
-    using namespace juce;
     auto bounds = getLocalBounds();
-    g.setColour(Colours::blueviolet);
-    g.fillAll();
-    auto localBound = getLocalBounds();
-    bounds.reduce(3, 3);
-    g.setColour(Colours::black);
-    g.fillRoundedRectangle(bounds.toFloat(), 3);
-
+    drawModuleBackground(g, bounds);
 }
 
 void GlobalControls::resized()
@@ -311,14 +385,12 @@ void GlobalControls::resized()
     using namespace juce;
     auto bounds = getLocalBounds().reduced(5);
 
-
     auto spacer = FlexItem().withWidth(4);
     auto endCap = FlexItem().withWidth(6);
 
     FlexBox flexBox;
     flexBox.flexDirection = FlexBox::Direction::row;
     flexBox.flexWrap = FlexBox::Wrap::noWrap;
-
 
     flexBox.items.add(endCap);
     flexBox.items.add(FlexItem(*lowMidXoverSlider).withFlex(1.f));
@@ -335,8 +407,9 @@ MBDistortionAudioProcessorEditor::MBDistortionAudioProcessorEditor (MBDistortion
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-    addAndMakeVisible(controlBar);
-    addAndMakeVisible(analyzer);
+    setLookAndFeel(&lnf);
+    //addAndMakeVisible(controlBar);
+    //addAndMakeVisible(analyzer);
     addAndMakeVisible(globalControls);
     addAndMakeVisible(bandControls);
 
@@ -345,17 +418,13 @@ MBDistortionAudioProcessorEditor::MBDistortionAudioProcessorEditor (MBDistortion
 
 MBDistortionAudioProcessorEditor::~MBDistortionAudioProcessorEditor()
 {
+    setLookAndFeel(nullptr);
 }
 
 //==============================================================================
 void MBDistortionAudioProcessorEditor::paint (juce::Graphics& g)
 {
     // (Our component is opaque, so we must completely fill the background with a solid colour)
-   /* g.fillAll (getLookAndFeel().findColour (juce::ResizableWindow::backgroundColourId));
-
-    g.setColour (juce::Colours::white);
-    g.setFont (15.0f);
-    g.drawFittedText ("Hello World!", getLocalBounds(), juce::Justification::centred, 1);*/
 
     g.fillAll(juce::Colours::black);
 }

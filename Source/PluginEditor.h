@@ -27,20 +27,20 @@ struct LookAndFeel : juce::LookAndFeel_V4
 
 struct RotarySliderWithLabels : juce::Slider
 {
-	RotarySliderWithLabels(juce::RangedAudioParameter& rap, const juce::String& unitSuffix, const juce::String& title="NO TITLE") :
+	RotarySliderWithLabels(juce::RangedAudioParameter* rap, const juce::String& unitSuffix, const juce::String& title = "NO TITLE") :
 		juce::Slider(juce::Slider::SliderStyle::RotaryHorizontalVerticalDrag,
 			juce::Slider::TextEntryBoxPosition::NoTextBox),
-		param(&rap),
+		param(rap),
 		suffix(unitSuffix)
 	{
 		setName(title);
-		setLookAndFeel(&lnf);
+		//setLookAndFeel(&lnf);
 	}
 
-	~RotarySliderWithLabels()
+	/*~RotarySliderWithLabels()
 	{
 		setLookAndFeel(nullptr);
-	}
+	}*/
 
 	struct LabelPos
 	{
@@ -54,9 +54,9 @@ struct RotarySliderWithLabels : juce::Slider
 	juce::Rectangle<int> getSliderBounds() const;
 	int getTextHeight() const { return 14; }
 	juce::String getDisplayString() const;
-private:
-	LookAndFeel lnf;
 
+	void changeParam(juce::RangedAudioParameter* p);
+private:
 	juce::RangedAudioParameter* param;
 	juce::String suffix;
 };
@@ -107,22 +107,22 @@ struct RotarySlider : juce::Slider
 	{}
 };
 template<
-			typename Attachment,
-			typename APVTS,
-			typename Params,
-			typename ParamName,
-			typename SliderType 
+	typename Attachment,
+	typename APVTS,
+	typename Params,
+	typename ParamName,
+	typename SliderType
 
 >
-void makeAttachment(std::unique_ptr<Attachment>& attachment,APVTS& apvts, const Params& params, const ParamName& name, SliderType& slider)
+void makeAttachment(std::unique_ptr<Attachment>& attachment, APVTS& apvts, const Params& params, const ParamName& name, SliderType& slider)
 {
 	attachment = std::make_unique<Attachment>(apvts, params.at(name), slider);
 }
 
 template<
 	typename APVTS,
-	 typename Params,
-	 typename Name
+	typename Params,
+	typename Name
 >
 juce::RangedAudioParameter& getParam(APVTS& apvts, const Params& params, const Name& name)
 {
@@ -146,6 +146,20 @@ void addLabelPairs(Labels& labels, const ParamType& param, const SuffixType& suf
 	labels.add({ 1.f,getValString(param, false, suffix) });
 
 }
+
+struct DistortionBandControls : juce::Component
+{
+	DistortionBandControls(juce::AudioProcessorValueTreeState& apvts);
+	void resized() override;
+	void paint(juce::Graphics& g) override;
+private:
+	juce::AudioProcessorValueTreeState& apvts;
+
+	RotarySliderWithLabels inputGainSlider, distortionSlider, outputGainSlider;
+
+	using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
+	std::unique_ptr<Attachment> inputGainSliderAttachment, distortionSliderAttachment, outputGainSliderAttachment;
+};
 
 struct GlobalControls : juce::Component
 {
@@ -174,10 +188,12 @@ public:
 	void resized() override;
 
 private:
+	LookAndFeel lnf;
 	// This reference is provided as a quick way for your editor to
 	// access the processor object that created it.
 	MBDistortionAudioProcessor& audioProcessor;
-	Placeholder controlBar, analyzer, /*globalControls*/ bandControls;
-	GlobalControls globalControls{audioProcessor.apvts};
+	Placeholder controlBar, analyzer /*globalControls*/ /*bandControls*/;
+	GlobalControls globalControls{ audioProcessor.apvts };
+	DistortionBandControls bandControls{ audioProcessor.apvts };
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessorEditor)
 };

@@ -139,7 +139,7 @@ private:
 		auto& waveshaper = processorChain.template get<waveShaperIndex>();
 		waveshaper.functionToUse = [driveInGain, clipping](float x)
 		{
-			return juce::jlimit(float(-clipping), float(clipping), x * (driveInGain))* 1/clipping;
+			return juce::jlimit(float(-clipping), float(clipping), x * (driveInGain/10))* 1/clipping;
 		};
 	}
 };
