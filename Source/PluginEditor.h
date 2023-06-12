@@ -147,11 +147,15 @@ void addLabelPairs(Labels& labels, const ParamType& param, const SuffixType& suf
 
 }
 
-struct DistortionBandControls : juce::Component
+struct DistortionBandControls : juce::Component, juce::Button::Listener
 {
 	DistortionBandControls(juce::AudioProcessorValueTreeState& apvts);
+	~DistortionBandControls() override;
 	void resized() override;
 	void paint(juce::Graphics& g) override;
+	void buttonClicked(juce::Button* button) override;
+	
+
 private:
 	juce::AudioProcessorValueTreeState& apvts;
 
@@ -164,6 +168,11 @@ private:
 
 	using BtnAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
 	std::unique_ptr<BtnAttachment> bypassButtonAttachment;
+
+	juce::Component::SafePointer<DistortionBandControls> safePtr{this};
+
+	void updateAttachments();
+	void updateSliderEnablements();
 };
 
 
