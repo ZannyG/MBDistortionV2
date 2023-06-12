@@ -159,7 +159,13 @@ private:
 
 	using Attachment = juce::AudioProcessorValueTreeState::SliderAttachment;
 	std::unique_ptr<Attachment> inputGainSliderAttachment, distortionSliderAttachment, outputGainSliderAttachment;
+
+	juce::ToggleButton bypassButton, lowBandButton, midBandButton, highBandButton;
+
+	using BtnAttachment = juce::AudioProcessorValueTreeState::ButtonAttachment;
+	std::unique_ptr<BtnAttachment> bypassButtonAttachment;
 };
+
 
 struct GlobalControls : juce::Component
 {
