@@ -4,6 +4,8 @@
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1">
   <MAINGROUP id="sRPfwS" name="MBDistortion">
     <GROUP id="{D24DF6CA-1B73-EB01-B5DC-51445BA1F4DE}" name="Source">
+      <FILE id="L9y5oO" name="AnalyzerPathGenerator.h" compile="0" resource="0"
+            file="Source/AnalyzerPathGenerator.h"/>
       <FILE id="vXxRY3" name="CustomButtons.cpp" compile="1" resource="0"
             file="Source/CustomButtons.cpp"/>
       <FILE id="N0NtSI" name="CustomButtons.h" compile="0" resource="0" file="Source/CustomButtons.h"/>
@@ -15,6 +17,9 @@
             file="Source/DistortionBandControls.cpp"/>
       <FILE id="VoLj7r" name="DistortionBandControls.h" compile="0" resource="0"
             file="Source/DistortionBandControls.h"/>
+      <FILE id="AQDePb" name="FFTDataGenerator.h" compile="0" resource="0"
+            file="Source/FFTDataGenerator.h"/>
+      <FILE id="D38lwF" name="Fifo.h" compile="0" resource="0" file="Source/Fifo.h"/>
       <FILE id="wDkDMB" name="GlobalControls.cpp" compile="1" resource="0"
             file="Source/GlobalControls.cpp"/>
       <FILE id="XRwKFy" name="GlobalControls.h" compile="0" resource="0"
@@ -23,6 +28,9 @@
       <FILE id="CTVajq" name="LookAndFeel.h" compile="0" resource="0" file="Source/LookAndFeel.h"/>
       <FILE id="Noy2hB" name="Params.cpp" compile="1" resource="0" file="Source/Params.cpp"/>
       <FILE id="vMuSmW" name="Params.h" compile="0" resource="0" file="Source/Params.h"/>
+      <FILE id="xJjape" name="PathProducer.cpp" compile="1" resource="0"
+            file="Source/PathProducer.cpp"/>
+      <FILE id="GSAhcH" name="PathProducer.h" compile="0" resource="0" file="Source/PathProducer.h"/>
       <FILE id="Hw1tvO" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="OZgQLZ" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
@@ -34,6 +42,12 @@
             file="Source/RotarySliderWithLabels.cpp"/>
       <FILE id="CkbHUz" name="RotarySliderWithLabels.h" compile="0" resource="0"
             file="Source/RotarySliderWithLabels.h"/>
+      <FILE id="tn59fD" name="SingleChannelSampleFifo.h" compile="0" resource="0"
+            file="Source/SingleChannelSampleFifo.h"/>
+      <FILE id="hyxnD4" name="SpectrumAnalyzer.cpp" compile="1" resource="0"
+            file="Source/SpectrumAnalyzer.cpp"/>
+      <FILE id="MQiNct" name="SpectrumAnalyzer.h" compile="0" resource="0"
+            file="Source/SpectrumAnalyzer.h"/>
       <FILE id="tvGNl2" name="Utilities.cpp" compile="1" resource="0" file="Source/Utilities.cpp"/>
       <FILE id="eQPGSt" name="Utilities.h" compile="0" resource="0" file="Source/Utilities.h"/>
       <FILE id="UU57Bq" name="UtilityComponents.cpp" compile="1" resource="0"

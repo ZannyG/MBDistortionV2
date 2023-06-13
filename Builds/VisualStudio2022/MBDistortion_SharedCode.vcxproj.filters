@@ -619,6 +619,9 @@
     <ClCompile Include="..\..\Source\Params.cpp">
       <Filter>MBDistortion\Source</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\Source\PathProducer.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\Source\PluginEditor.cpp">
       <Filter>MBDistortion\Source</Filter>
     </ClCompile>
@@ -626,6 +629,9 @@
       <Filter>MBDistortion\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\RotarySliderWithLabels.cpp">
+      <Filter>MBDistortion\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Source\SpectrumAnalyzer.cpp">
       <Filter>MBDistortion\Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\Source\Utilities.cpp">
@@ -3072,6 +3078,9 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\AnalyzerPathGenerator.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\CustomButtons.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
@@ -3079,6 +3088,12 @@
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\DistortionBandControls.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\FFTDataGenerator.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\Fifo.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\GlobalControls.h">
@@ -3090,6 +3105,9 @@
     <ClInclude Include="..\..\Source\Params.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\Source\PathProducer.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\Source\PluginEditor.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
@@ -3097,6 +3115,12 @@
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\RotarySliderWithLabels.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SingleChannelSampleFifo.h">
+      <Filter>MBDistortion\Source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Source\SpectrumAnalyzer.h">
       <Filter>MBDistortion\Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\Source\Utilities.h">

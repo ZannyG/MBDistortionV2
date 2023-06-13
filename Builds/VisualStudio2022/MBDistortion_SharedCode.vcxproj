@@ -145,9 +145,11 @@
     <ClCompile Include="..\..\Source\GlobalControls.cpp"/>
     <ClCompile Include="..\..\Source\LookAndFeel.cpp"/>
     <ClCompile Include="..\..\Source\Params.cpp"/>
+    <ClCompile Include="..\..\Source\PathProducer.cpp"/>
     <ClCompile Include="..\..\Source\PluginEditor.cpp"/>
     <ClCompile Include="..\..\Source\PluginProcessor.cpp"/>
     <ClCompile Include="..\..\Source\RotarySliderWithLabels.cpp"/>
+    <ClCompile Include="..\..\Source\SpectrumAnalyzer.cpp"/>
     <ClCompile Include="..\..\Source\Utilities.cpp"/>
     <ClCompile Include="..\..\Source\UtilityComponents.cpp"/>
     <ClCompile Include="..\..\..\..\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.cpp">
@@ -2431,15 +2433,21 @@
     <ClCompile Include="..\..\JuceLibraryCode\include_juce_gui_extra.cpp"/>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\Source\AnalyzerPathGenerator.h"/>
     <ClInclude Include="..\..\Source\CustomButtons.h"/>
     <ClInclude Include="..\..\Source\DistortionBand.h"/>
     <ClInclude Include="..\..\Source\DistortionBandControls.h"/>
+    <ClInclude Include="..\..\Source\FFTDataGenerator.h"/>
+    <ClInclude Include="..\..\Source\Fifo.h"/>
     <ClInclude Include="..\..\Source\GlobalControls.h"/>
     <ClInclude Include="..\..\Source\LookAndFeel.h"/>
     <ClInclude Include="..\..\Source\Params.h"/>
+    <ClInclude Include="..\..\Source\PathProducer.h"/>
     <ClInclude Include="..\..\Source\PluginEditor.h"/>
     <ClInclude Include="..\..\Source\PluginProcessor.h"/>
     <ClInclude Include="..\..\Source\RotarySliderWithLabels.h"/>
+    <ClInclude Include="..\..\Source\SingleChannelSampleFifo.h"/>
+    <ClInclude Include="..\..\Source\SpectrumAnalyzer.h"/>
     <ClInclude Include="..\..\Source\Utilities.h"/>
     <ClInclude Include="..\..\Source\UtilityComponents.h"/>
     <ClInclude Include="..\..\..\..\modules\juce_audio_basics\audio_play_head\juce_AudioPlayHead.h"/>
