@@ -1,7 +1,7 @@
 /*
   ==============================================================================
 
-	This file contains the basic framework code for a JUCE plugin processor.
+    This file contains the basic framework code for a JUCE plugin processor.
 
   ==============================================================================
 */
@@ -144,112 +144,78 @@ private:
         ++fifoIndex;
     }
 };
-enum Slope
-{
-    Slope_12,
-    Slope_24,
-    Slope_36,
-    Slope_48
-};
-
-struct ChainSettings
-{
-    float peakFreq{ 0 }, peakGainInDecibels{ 0 }, peakQuality{ 1.f };
-    float lowCutFreq{ 0 }, highCutFreq{ 0 };
-
-    Slope lowCutSlope{ Slope::Slope_12 }, highCutSlope{ Slope::Slope_12 };
-
-    bool lowCutBypassed{ false }, peakBypassed{ false }, highCutBypassed{ false };
-};
-
-ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
-
-using Filter = juce::dsp::IIR::Filter<float>;
-
-using CutFilter = juce::dsp::ProcessorChain<Filter, Filter, Filter, Filter>;
-
-using MonoChain = juce::dsp::ProcessorChain<CutFilter, Filter, CutFilter>;
-
-enum ChainPositions
-{
-    LowCut,
-    Peak,
-    HighCut
-};
-
-
 //==============================================================================
 
 class MBDistortionAudioProcessor : public juce::AudioProcessor
 #if JucePlugin_Enable_ARA
-	, public juce::AudioProcessorARAExtension
+    , public juce::AudioProcessorARAExtension
 #endif
 {
 public:
-	//==============================================================================
-	MBDistortionAudioProcessor();
-	~MBDistortionAudioProcessor() override;
+    //==============================================================================
+    MBDistortionAudioProcessor();
+    ~MBDistortionAudioProcessor() override;
 
-	//==============================================================================
-	void prepareToPlay(double sampleRate, int samplesPerBlock) override;
-	void releaseResources() override;
+    //==============================================================================
+    void prepareToPlay(double sampleRate, int samplesPerBlock) override;
+    void releaseResources() override;
 
 
 #ifndef JucePlugin_PreferredChannelConfigurations
-	bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
+    bool isBusesLayoutSupported(const BusesLayout& layouts) const override;
 #endif
 
-	void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
+    void processBlock(juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
-	//==============================================================================
-	juce::AudioProcessorEditor* createEditor() override;
-	bool hasEditor() const override;
+    //==============================================================================
+    juce::AudioProcessorEditor* createEditor() override;
+    bool hasEditor() const override;
 
-	//==============================================================================
-	const juce::String getName() const override;
+    //==============================================================================
+    const juce::String getName() const override;
 
-	bool acceptsMidi() const override;
-	bool producesMidi() const override;
-	bool isMidiEffect() const override;
-	double getTailLengthSeconds() const override;
+    bool acceptsMidi() const override;
+    bool producesMidi() const override;
+    bool isMidiEffect() const override;
+    double getTailLengthSeconds() const override;
 
-	//==============================================================================
-	int getNumPrograms() override;
-	int getCurrentProgram() override;
-	void setCurrentProgram(int index) override;
-	const juce::String getProgramName(int index) override;
-	void changeProgramName(int index, const juce::String& newName) override;
+    //==============================================================================
+    int getNumPrograms() override;
+    int getCurrentProgram() override;
+    void setCurrentProgram(int index) override;
+    const juce::String getProgramName(int index) override;
+    void changeProgramName(int index, const juce::String& newName) override;
 
-	//==============================================================================
-	void getStateInformation(juce::MemoryBlock& destData) override;
-	void setStateInformation(const void* data, int sizeInBytes) override;
+    //==============================================================================
+    void getStateInformation(juce::MemoryBlock& destData) override;
+    void setStateInformation(const void* data, int sizeInBytes) override;
 
-	using APVTS = juce::AudioProcessorValueTreeState;
-	static APVTS::ParameterLayout createParameterLayout();
-	APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
+    using APVTS = juce::AudioProcessorValueTreeState;
+    static APVTS::ParameterLayout createParameterLayout();
+    APVTS apvts{ *this, nullptr, "Parameters", createParameterLayout() };
 
     using BlockType = juce::AudioBuffer<float>;
     SingleChannelSampleFifo<BlockType> leftChannelFifo { Channel::Left };
     SingleChannelSampleFifo<BlockType> rightChannelFifo { Channel::Right };
 
 private:
-	DistortionBand* p_lowBandDist;
-	DistortionBand* p_midBandDist ;
-	DistortionBand* p_highBandDist;
+    DistortionBand* p_lowBandDist;
+    DistortionBand* p_midBandDist;
+    DistortionBand* p_highBandDist;
 
-	using Filter = juce::dsp::LinkwitzRileyFilter<float>;
+    using Filter = juce::dsp::LinkwitzRileyFilter<float>;
 
-	Filter LP1, AP2,
-		HP1, LP2,
-		HP2;
+    Filter LP1, AP2,
+        HP1, LP2,
+        HP2;
 
-	juce::AudioParameterFloat* lowMidCrossover { nullptr };
-	juce::AudioParameterFloat* midHighCrossover { nullptr };
+    juce::AudioParameterFloat* lowMidCrossover { nullptr };
+    juce::AudioParameterFloat* midHighCrossover { nullptr };
 
-	std::array<juce::AudioBuffer<float>, 3> filterBuffers;
+    std::array<juce::AudioBuffer<float>, 3> filterBuffers;
 
-	void updateState();
-	void splitBands(const juce::AudioBuffer<float>& inputBuffer);
-	//==============================================================================
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessor);
+    void updateState();
+    void splitBands(const juce::AudioBuffer<float>& inputBuffer);
+    //==============================================================================
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessor);
 };

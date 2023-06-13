@@ -237,7 +237,7 @@ void MBDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
 
 	buffer.clear();
 
-	
+
 	auto addFilterBand = [nc = numChannels, ns = numSamples](auto& inputBuffer, const auto& source)
 	{
 		for (auto i = 0; i < nc; ++i)
@@ -272,7 +272,7 @@ bool MBDistortionAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MBDistortionAudioProcessor::createEditor()
 {
-	return new MBDistortionAudioProcessorEditor (*this);
+	return new MBDistortionAudioProcessorEditor(*this);
 	//return new juce::GenericAudioProcessorEditor(*this);
 
 }

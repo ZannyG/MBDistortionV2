@@ -1,13 +1,10 @@
 /*
   ==============================================================================
 
-	This file contains the basic framework code for a JUCE plugin editor.
+    This file contains the basic framework code for a JUCE plugin editor.
 
   ==============================================================================
 */
-
-
-
 #pragma once
 
 #include <JuceHeader.h>
@@ -23,9 +20,9 @@
 
 enum FFTOrder
 {
-	order2048 = 11,
-	order4096 = 12,
-	order8192 = 13
+    order2048 = 11,
+    order4096 = 12,
+    order8192 = 13
 };
 
 template<typename BlockType>
@@ -177,24 +174,65 @@ private:
 
 struct PathProducer
 {
-	PathProducer(SingleChannelSampleFifo<MBDistortionAudioProcessor::BlockType>& scsf) :
-		leftChannelFifo(&scsf)
-	{
-		leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
-		monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
-	}
-	void process(juce::Rectangle<float> fftBounds, double sampleRate);
-	juce::Path getPath() { return leftChannelFFTPath; }
+    PathProducer(SingleChannelSampleFifo<MBDistortionAudioProcessor::BlockType>& scsf) :
+        leftChannelFifo(&scsf)
+    {
+        leftChannelFFTDataGenerator.changeOrder(FFTOrder::order2048);
+        monoBuffer.setSize(1, leftChannelFFTDataGenerator.getFFTSize());
+    }
+    void process(juce::Rectangle<float> fftBounds, double sampleRate);
+    juce::Path getPath() { return leftChannelFFTPath; }
 private:
-	SingleChannelSampleFifo<MBDistortionAudioProcessor::BlockType>* leftChannelFifo;
+    SingleChannelSampleFifo<MBDistortionAudioProcessor::BlockType>* leftChannelFifo;
 
-	juce::AudioBuffer<float> monoBuffer;
+    juce::AudioBuffer<float> monoBuffer;
 
-	FFTDataGenerator<std::vector<float>> leftChannelFFTDataGenerator;
+    FFTDataGenerator<std::vector<float>> leftChannelFFTDataGenerator;
 
-	AnalyzerPathGenerator<juce::Path> pathProducer;
+    AnalyzerPathGenerator<juce::Path> pathProducer;
 
-	juce::Path leftChannelFFTPath;
+    juce::Path leftChannelFFTPath;
+};
+
+struct ResponseCurveComponent : juce::Component,
+    juce::AudioProcessorParameter::Listener,
+    juce::Timer
+{
+    ResponseCurveComponent(MBDistortionAudioProcessor&);
+    ~ResponseCurveComponent();
+
+    void parameterValueChanged(int parameterIndex, float newValue) override;
+
+    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override { }
+
+    void timerCallback() override;
+
+    void paint(juce::Graphics& g) override;
+    void resized() override;
+
+    void toggleAnalysisEnablement(bool enabled)
+    {
+        shouldShowFFTAnalysis = enabled;
+    }
+private:
+    MBDistortionAudioProcessor& audioProcessor;
+
+    bool shouldShowFFTAnalysis = true;
+
+    juce::Atomic<bool> parametersChanged { false };
+
+    void drawBackgroundGrid(juce::Graphics& g);
+    void drawTextLabels(juce::Graphics& g);
+
+    std::vector<float> getFrequencies();
+    std::vector<float> getGains();
+    std::vector<float> getXs(const std::vector<float>& freqs, float left, float width);
+
+    juce::Rectangle<int> getRenderArea();
+
+    juce::Rectangle<int> getAnalysisArea();
+
+    PathProducer leftPathProducer, rightPathProducer;
 };
 
 struct SpectrumAnalyzer : juce::Component,
@@ -243,22 +281,22 @@ private:
 class MBDistortionAudioProcessorEditor : public juce::AudioProcessorEditor
 {
 public:
-	MBDistortionAudioProcessorEditor(MBDistortionAudioProcessor&);
-	~MBDistortionAudioProcessorEditor() override;
+    MBDistortionAudioProcessorEditor(MBDistortionAudioProcessor&);
+    ~MBDistortionAudioProcessorEditor() override;
 
-	//==============================================================================
-	void paint(juce::Graphics&) override;
-	void resized() override;
+    //==============================================================================
+    void paint(juce::Graphics&) override;
+    void resized() override;
 
 private:
-	LookAndFeel lnf;
-	// This reference is provided as a quick way for your editor to
-	// access the processor object that created it.
-	MBDistortionAudioProcessor& audioProcessor;
+    LookAndFeel lnf;
+    // This reference is provided as a quick way for your editor to
+    // access the processor object that created it.
+    MBDistortionAudioProcessor& audioProcessor;
 
     Placeholder controlBar/*, analyzer*/ /*globalControls*/ /*bandControls*/;
-	GlobalControls globalControls{ audioProcessor.apvts };
-	DistortionBandControls bandControls{ audioProcessor.apvts };
-    SpectrumAnalyzer analyzer{audioProcessor};
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessorEditor)
+    GlobalControls globalControls{ audioProcessor.apvts };
+    DistortionBandControls bandControls{ audioProcessor.apvts };
+    ResponseCurveComponent analyzer{ audioProcessor };
+    JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MBDistortionAudioProcessorEditor)
 };
