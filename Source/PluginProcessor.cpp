@@ -314,8 +314,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout MBDistortionAudioProcessor::
 	using namespace Params;
 	const auto& params = GetParams();
 
-	auto driveRange = NormalisableRange<float>(0, 100, 1, 1);
-	auto gainRange = NormalisableRange<float>(-24, 24, 0.5, 1);
+	auto driveRange = NormalisableRange<float>(MIN_DIST, 100, 1, 1);
+	auto gainRange = NormalisableRange<float>(-MAX_DECIBELS, MAX_DECIBELS, 0.5, 1);
 
 	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::InputGain_Low_Band), params.at(Names::InputGain_Low_Band), gainRange, 0));
 	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Distortion_Low_Band), params.at(Names::Distortion_Low_Band), driveRange, 0));
