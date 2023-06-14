@@ -12,7 +12,7 @@
 #include <JuceHeader.h>
 
 #define MIN_FREQUENCY 20.f
-#define MIN_FREQUENCY 20000.f
+#define MAX_FREQUENCY 20000.f
 
 #define NEGATIVE_INFINITY - 72.f
 #define MAX_DECIBELS 24.f
