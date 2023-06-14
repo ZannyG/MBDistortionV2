@@ -233,16 +233,15 @@ void MBDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
 	// this code if your algorithm always overwrites all the output channels.
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
-
+	
 	
 	updateState();
 	leftChannelFifo.update(buffer);
 	leftChannelFifo.update(buffer);
 	splitBands(buffer);
-
+	
 	auto numSamples = buffer.getNumSamples();
 	auto numChannels = buffer.getNumChannels();
-
 	buffer.clear();
 
 
@@ -253,7 +252,7 @@ void MBDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
 			inputBuffer.addFrom(i, 0, source, i, 0, ns);
 		}
 	};
-
+	
 	addFilterBand(buffer, filterBuffers[0]);
 	addFilterBand(buffer, filterBuffers[1]);
 	addFilterBand(buffer, filterBuffers[2]);
@@ -333,8 +332,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout MBDistortionAudioProcessor::
 	layout.add(std::make_unique <AudioParameterBool>(params.at(Names::Bypassed_Mid_Band), params.at(Names::Bypassed_Mid_Band), false));
 	layout.add(std::make_unique <AudioParameterBool>(params.at(Names::Bypassed_High_Band), params.at(Names::Bypassed_High_Band), false));
 
-	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Low_Mid_Crossover_Freq), params.at(Names::Low_Mid_Crossover_Freq), NormalisableRange<float>(20, 999, 1, 1), 400));
-	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Mid_High_Crossover_Freq), params.at(Names::Mid_High_Crossover_Freq), NormalisableRange<float>(1000, 20000, 1, 1), 2000));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Low_Mid_Crossover_Freq), params.at(Names::Low_Mid_Crossover_Freq), NormalisableRange<float>(50, 999, 1, 1), 200));
+	layout.add(std::make_unique<AudioParameterFloat>(params.at(Names::Mid_High_Crossover_Freq), params.at(Names::Mid_High_Crossover_Freq), NormalisableRange<float>(1000, 10000, 1, 1), 2000));
 
 	return layout;
 }

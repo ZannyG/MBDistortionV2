@@ -36,11 +36,11 @@ DistortionBandControls::DistortionBandControls(juce::AudioProcessorValueTreeStat
 	lowBandButton.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
 
 	midBandButton.setName("Mid");
-	midBandButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::green);
+	midBandButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::limegreen);
 	midBandButton.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
 
 	highBandButton.setName("High");
-	highBandButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::green);
+	highBandButton.setColour(juce::TextButton::ColourIds::buttonOnColourId, juce::Colours::limegreen);
 	highBandButton.setColour(juce::TextButton::ColourIds::buttonColourId, juce::Colours::black);
 
 	lowBandButton.setRadioGroupId(1);

@@ -28,10 +28,12 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
 	auto enabled = slider.isEnabled();
 
-	g.setColour(enabled ? Colour(97u, 18u, 167u) : Colours::darkgrey);
+	//g.setColour(enabled ? Colour(97u, 18u, 167u) : Colours::darkgrey);
+	g.setColour(enabled ? ColorScheme::getModuleBorderColor() : Colours::darkgrey);
 	g.fillEllipse(bounds);
 
-	g.setColour(enabled ? Colour(255u, 154u, 1u) : Colours::grey);
+	//g.setColour(enabled ? Colour(255u, 154u, 1u) : Colours::grey);
+	g.setColour(enabled ? ColorScheme::getSliderBorderColor() : Colours::grey);
 	g.drawEllipse(bounds, 1.f);
 
 	if (auto* rswl = dynamic_cast<RotarySliderWithLabels*>(&slider))
@@ -62,10 +64,12 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 		r.setSize(strWidth + 4, rswl->getTextHeight() + 2);
 		r.setCentre(bounds.getCentre());
 
-		g.setColour(enabled ? Colours::black : Colours::darkgrey);
+		//g.setColour(enabled ? Colours::red : Colours::darkgrey);
+		g.setColour(enabled ? ColorScheme::getModuleBorderColor() : Colours::darkgrey);
 		g.fillRect(r);
 
-		g.setColour(enabled ? Colours::white : Colours::lightgrey);
+		//g.setColour(enabled ? Colours::white : Colours::lightgrey);
+		g.setColour(enabled ? Colours::black : Colours::lightgrey);
 		g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
 	}
 }
@@ -104,7 +108,7 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
 
 		PathStrokeType pst(2.f, PathStrokeType::JointStyle::curved);
 
-		auto color = toggleButton.getToggleState() ? Colours::dimgrey : Colour(0u, 172u, 1u);
+		auto color = toggleButton.getToggleState() ? Colours::red : Colours::red;
 
 		g.setColour(color);
 		g.strokePath(powerButton, pst);

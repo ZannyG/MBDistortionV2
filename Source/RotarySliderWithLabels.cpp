@@ -24,7 +24,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
 	auto bounds = getLocalBounds();
 
-	g.setColour(Colours::blueviolet);
+	g.setColour(ColorScheme::getTextColor());
 	g.drawFittedText(getName(), bounds.removeFromTop(getTextHeight() + 2), Justification::centredBottom, 1);
 
 	getLookAndFeel().drawRotarySlider(g,
@@ -40,7 +40,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 	auto center = sliderBounds.toFloat().getCentre();
 	auto radius = sliderBounds.getWidth() * 0.5f;
 
-	g.setColour(Colour(0u, 172u, 1u));
+	g.setColour(ColorScheme::getTextColor());
 	g.setFont(getTextHeight());
 
 	auto numChoices = labels.size();
