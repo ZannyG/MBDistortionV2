@@ -139,6 +139,11 @@ void MBDistortionAudioProcessor::prepareToPlay(double sampleRate, int samplesPer
 	{
 		buffer.setSize(spec.numChannels, samplesPerBlock);
 	}
+
+	leftChannelFifo.prepare(samplesPerBlock);	
+	rightChannelFifo.prepare(samplesPerBlock);
+
+
 }
 
 void MBDistortionAudioProcessor::releaseResources()
@@ -229,7 +234,10 @@ void MBDistortionAudioProcessor::processBlock(juce::AudioBuffer<float>& buffer, 
 	for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 		buffer.clear(i, 0, buffer.getNumSamples());
 
+	
 	updateState();
+	leftChannelFifo.update(buffer);
+	leftChannelFifo.update(buffer);
 	splitBands(buffer);
 
 	auto numSamples = buffer.getNumSamples();

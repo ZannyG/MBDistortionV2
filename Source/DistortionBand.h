@@ -51,6 +51,7 @@ private:
 	};
 	void updateDistortionSettings()
 	{
+		
 		using namespace Params;
 		const auto& params = GetParams();
 		switch (bandFreq)
