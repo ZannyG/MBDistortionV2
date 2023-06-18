@@ -34,11 +34,10 @@ public:
 
 private:
     LookAndFeel lnf;
-    // This reference is provided as a quick way for your editor to
-    // access the processor object that created it.
+
     MBDistortionAudioProcessor& audioProcessor;
 
-    Placeholder controlBar/*, analyzer*/ /*globalControls*/ /*bandControls*/;
+    Placeholder controlBar;
     GlobalControls globalControls{ audioProcessor.apvts };
     DistortionBandControls bandControls{ audioProcessor.apvts };
     SpectrumAnalyzer analyzer{ audioProcessor };

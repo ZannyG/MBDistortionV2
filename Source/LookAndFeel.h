@@ -57,7 +57,7 @@ namespace ColorScheme
 	}
 	inline juce::Colour getTitleColor()
 	{
-		return colorHelper(juce::Colour(0xffdb360f));
+		return colorHelper(juce::Colour(0xffef9221));
 	}
 }
 struct LookAndFeel : juce::LookAndFeel_V4

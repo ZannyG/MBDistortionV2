@@ -93,12 +93,6 @@ juce::String RotarySliderWithLabels::getDisplayString() const
 	if (auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
 	{
 		float val = getValue();
-
-		//if (val > 999.f)
-		//{
-		//    val /= 1000.f; //1001 / 1000 = 1.001
-		//    addK = true;
-		//}
 		addK = truncateKiloValue(val);
 		str = juce::String(val, (addK ? 2 : 0));
 	}

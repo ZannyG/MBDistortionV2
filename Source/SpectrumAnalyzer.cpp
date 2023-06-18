@@ -61,13 +61,13 @@ void SpectrumAnalyzer::drawFFTAnalysis(juce::Graphics& g, juce::Rectangle<int>bo
 	g.reduceClipRegion(responseArea);
 
 	auto leftChannelFFTPath = leftPathProducer.getPath();
-	leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0/*responseArea.getY()*/));
+	leftChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0));
 
-	g.setColour(Colour(97u, 18u, 167u)); //purple-
+	g.setColour(ColorScheme::getSliderBorderColor());
 	g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
 
 	auto rightChannelFFTPath = rightPathProducer.getPath();
-	rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0/*responseArea.getY()*/));
+	rightChannelFFTPath.applyTransform(AffineTransform().translation(responseArea.getX(), 0));
 
 	g.setColour(Colour(215u, 201u, 134u));
 	g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
@@ -87,23 +87,10 @@ void SpectrumAnalyzer::paint(juce::Graphics& g)
 		drawFFTAnalysis(g, bounds);
 	}
 
-	/* Path border;
-
-	 border.setUsingNonZeroWinding(false);
-
-	 border.addRoundedRectangle(getRenderArea(getRenderArea(bounds)), 4);
-	 border.addRectangle(getLocalBounds());*/
-
-	//g.setColour(Colours::red);
-
-	// g.fillPath(border);
-
 	drawCrossovers(g, bounds);
 
 	drawTextLabels(g, bounds);
 
-	/*g.setColour(Colours::orange);
-	g.drawRoundedRectangle(getRenderArea(bounds).toFloat(), 4.f, 1.f);*/
 }
 
 void SpectrumAnalyzer::drawCrossovers(juce::Graphics& g, juce::Rectangle<int>bounds)
@@ -141,19 +128,16 @@ std::vector<float> SpectrumAnalyzer::getFrequencies()
 {
 	return std::vector<float>
 	{
-		20, /*30, 40,*/ 50, 100,
-			200, /*300, 400,*/ 500, 1000,
-			2000, /*3000, 4000,*/ 5000, 10000,
+		20,  50, 100,
+			200,  500, 1000,
+			2000,  5000, 10000,
 			20000
 	};
 }
 
 std::vector<float> SpectrumAnalyzer::getGains()
 {
-	//return std::vector<float>
-	//{
-	//    -24, -12, 0, 12, 24
-	//};
+	
 	std::vector<float> values;
 	auto increment = MAX_DECIBELS - 12;
 	for (auto db = NEGATIVE_INFINITY; db <= MAX_DECIBELS; db += increment)
@@ -199,9 +183,9 @@ void SpectrumAnalyzer::drawBackgroundGrid(juce::Graphics& g, juce::Rectangle<int
 
 	for (auto gDb : gain)
 	{
-		// auto y = jmap(gDb, -24.f, 24.f, float(bottom), float(top));
+	
 		auto y = jmap(gDb, NEGATIVE_INFINITY, MAX_DECIBELS, float(bottom), float(top));
-		//g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::white);
+	
 		g.setColour(gDb == 0.f ? ColorScheme::getFreqAndDBColor() : ColorScheme::getGridColor());
 		g.drawHorizontalLine(y, left, right);
 	}
@@ -248,7 +232,7 @@ void SpectrumAnalyzer::drawTextLabels(juce::Graphics& g, juce::Rectangle<int> bo
 
 		r.setSize(textWidth, fontHeight);
 		r.setCentre(x, 0);
-		//r.setY(1);
+		
 
 		r.setY(bounds.getY());
 
@@ -259,7 +243,6 @@ void SpectrumAnalyzer::drawTextLabels(juce::Graphics& g, juce::Rectangle<int> bo
 
 	for (auto gDb : gain)
 	{
-		//auto y = jmap(gDb, -24.f, 24.f, float(bottom), float(top));
 
 		auto y = jmap(gDb, NEGATIVE_INFINITY, MAX_DECIBELS, float(bottom), float(top));
 
@@ -272,7 +255,6 @@ void SpectrumAnalyzer::drawTextLabels(juce::Graphics& g, juce::Rectangle<int> bo
 
 		Rectangle<int> r;
 		r.setSize(textWidth, fontHeight);
-		// r.setX(getWidth() - textWidth);
 		r.setX(bounds.getRight() - textWidth);
 		r.setCentre(r.getCentreX(), y);
 
@@ -280,13 +262,7 @@ void SpectrumAnalyzer::drawTextLabels(juce::Graphics& g, juce::Rectangle<int> bo
 
 		g.drawFittedText(str, r, juce::Justification::centredLeft, 1);
 
-		//str.clear();
-		//str << (gDb - 24.f);
-
 		r.setX(bounds.getX() - 1);
-		/*textWidth = g.getCurrentFont().getStringWidth(str);
-		r.setSize(textWidth, fontHeight);
-		g.setColour(Colours::lightgrey);*/
 		g.drawFittedText(str, r, juce::Justification::centredLeft, 1);
 	}
 }
@@ -296,7 +272,7 @@ void SpectrumAnalyzer::resized()
 	using namespace juce;
 	auto bounds = getLocalBounds();
 	auto fftBounds = getAnalysisArea(bounds).toFloat();
-	auto negInf = jmap(bounds.toFloat().getBottom(), fftBounds.getBottom(), fftBounds.getY(), /*-48.f, 0.f*/ NEGATIVE_INFINITY, MAX_DECIBELS);
+	auto negInf = jmap(bounds.toFloat().getBottom(), fftBounds.getBottom(), fftBounds.getY(), NEGATIVE_INFINITY, MAX_DECIBELS);
 	leftPathProducer.updateNegativeInfinity(negInf);
 	rightPathProducer.updateNegativeInfinity(negInf);
 

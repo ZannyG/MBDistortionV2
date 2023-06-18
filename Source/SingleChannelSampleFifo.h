@@ -13,8 +13,8 @@
 #include "Fifo.h"
 enum Channel
 {
-    Right, //effectively 0
-    Left //effectively 1
+    Right, 
+    Left 
 };
 
 template<typename BlockType>
@@ -42,11 +42,11 @@ struct SingleChannelSampleFifo
         prepared.set(false);
         size.set(bufferSize);
 
-        bufferToFill.setSize(1,             //channel
-            bufferSize,    //num samples
-            false,         //keepExistingContent
-            true,          //clear extra space
-            true);         //avoid reallocating
+        bufferToFill.setSize(1,           
+            bufferSize, 
+            false,        
+            true,          
+            true);         
         audioBufferFifo.prepare(1, bufferSize);
         fifoIndex = 0;
         prepared.set(true);

@@ -6,9 +6,9 @@
     <GROUP id="{D24DF6CA-1B73-EB01-B5DC-51445BA1F4DE}" name="Source">
       <FILE id="L9y5oO" name="AnalyzerPathGenerator.h" compile="0" resource="0"
             file="Source/AnalyzerPathGenerator.h"/>
-      <FILE id="vXxRY3" name="CustomButtons.cpp" compile="1" resource="0"
+      <FILE id="Ys5Lqv" name="CustomButtons.cpp" compile="1" resource="0"
             file="Source/CustomButtons.cpp"/>
-      <FILE id="N0NtSI" name="CustomButtons.h" compile="0" resource="0" file="Source/CustomButtons.h"/>
+      <FILE id="ENP2g2" name="CustomButtons.h" compile="0" resource="0" file="Source/CustomButtons.h"/>
       <FILE id="DgRBaa" name="DistortionBand.cpp" compile="1" resource="0"
             file="Source/DistortionBand.cpp"/>
       <FILE id="IqlA5X" name="DistortionBand.h" compile="0" resource="0"

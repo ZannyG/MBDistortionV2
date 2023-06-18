@@ -19,13 +19,7 @@ struct RotarySliderWithLabels : juce::Slider
 		suffix(unitSuffix)
 	{
 		setName(title);
-		//setLookAndFeel(&lnf);
 	}
-
-	/*~RotarySliderWithLabels()
-	{
-		setLookAndFeel(nullptr);
-	}*/
 
 	struct LabelPos
 	{

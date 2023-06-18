@@ -28,11 +28,9 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 
 	auto enabled = slider.isEnabled();
 
-	//g.setColour(enabled ? Colour(97u, 18u, 167u) : Colours::darkgrey);
 	g.setColour(enabled ? ColorScheme::getModuleBorderColor() : Colours::darkgrey);
 	g.fillEllipse(bounds);
 
-	//g.setColour(enabled ? Colour(255u, 154u, 1u) : Colours::grey);
 	g.setColour(enabled ? ColorScheme::getSliderBorderColor() : Colours::grey);
 	g.drawEllipse(bounds, 1.f);
 
@@ -64,12 +62,10 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g,
 		r.setSize(strWidth + 4, rswl->getTextHeight() + 2);
 		r.setCentre(bounds.getCentre());
 
-		//g.setColour(enabled ? Colours::red : Colours::darkgrey);
 		g.setColour(enabled ? ColorScheme::getModuleBorderColor() : Colours::darkgrey);
 		g.fillRect(r);
 
-		//g.setColour(enabled ? Colours::white : Colours::lightgrey);
-		g.setColour(enabled ? Colours::black : Colours::lightgrey);
+		g.setColour(enabled ? Colours::white : Colours::lightgrey);
 		g.drawFittedText(text, r.toNearestInt(), juce::Justification::centred, 1);
 	}
 }
@@ -90,7 +86,7 @@ void LookAndFeel::drawToggleButton(juce::Graphics& g,
 		auto size = jmin(bounds.getWidth(), bounds.getHeight()) - 6;
 		auto r = bounds.withSizeKeepingCentre(size, size).toFloat();
 
-		float ang = 30.f; //30.f;
+		float ang = 30.f;
 
 		size -= 6;
 

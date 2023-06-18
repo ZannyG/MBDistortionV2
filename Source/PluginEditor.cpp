@@ -16,7 +16,6 @@ MBDistortionAudioProcessorEditor::MBDistortionAudioProcessorEditor(MBDistortionA
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setLookAndFeel(&lnf);
-    //addAndMakeVisible(controlBar);
     addAndMakeVisible(analyzer);
     addAndMakeVisible(globalControls);
     addAndMakeVisible(bandControls);
@@ -32,7 +31,6 @@ MBDistortionAudioProcessorEditor::~MBDistortionAudioProcessorEditor()
 //==============================================================================
 void MBDistortionAudioProcessorEditor::paint(juce::Graphics& g)
 {
-    // (Our component is opaque, so we must completely fill the background with a solid colour)
     using namespace juce;
     g.fillAll(juce::Colours::black);
 
@@ -63,9 +61,7 @@ void MBDistortionAudioProcessorEditor::paint(juce::Graphics& g)
     curve.lineTo({ 0.f, 2.f });
     curve.lineTo(0.f, 0.f);
     curve.lineTo(center.x, 0.f);
-    //    curve.closeSubPath();
 
-    //    g.setColour(Colour(97u, 18u, 167u));
     g.setColour(ColorScheme::getModuleBorderColor());
     g.fillPath(curve);
     g.setColour(ColorScheme::getModuleBorderColor());
@@ -79,23 +75,13 @@ void MBDistortionAudioProcessorEditor::paint(juce::Graphics& g)
     g.setColour(ColorScheme::getModuleBorderColor());
     g.strokePath(curve, PathStrokeType(2));
 
-
-    //    g.setColour(Colour(255u, 154u, 1u));
     g.setColour(ColorScheme::getTitleColor());
     g.drawFittedText(title, bounds, juce::Justification::centredTop, 1);
-
-    //    auto buildDate = Time::getCompilationDate().toString(true, false);
-    //    auto buildTime = Time::getCompilationDate().toString(false, true);
-    //    g.setFont(12);
-    //    g.drawFittedText(buildDate + "\n" + buildTime, crossoverThresholdDisplay.getBounds().withY(6), Justification::topRight, 2);
 
 }
 
 void MBDistortionAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
-
     auto bounds = getLocalBounds();
 
     controlBar.setBounds(bounds.removeFromTop(32));

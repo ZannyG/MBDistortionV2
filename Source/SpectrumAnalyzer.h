@@ -38,7 +38,6 @@ private:
 
     juce::Atomic<bool> parametersChanged { false };
 
-   // void drawBackgroundGrid(juce::Graphics& g);
     void drawBackgroundGrid(juce::Graphics& g, juce::Rectangle<int> bounds);
     void drawTextLabels(juce::Graphics& g, juce::Rectangle<int> bounds);
 
